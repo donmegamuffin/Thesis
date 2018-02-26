@@ -1,0 +1,154 @@
+\documentclass[titlepage]{article}
+\usepackage[document]{ragged2e}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{indentfirst}
+\usepackage{ragged2e}
+\usepackage{tikz}
+\usepackage{listings}
+\usepackage{cite}
+\usepackage{pdfpages}
+%\usepackage[a4paper, margin=1.25in]{geometry}
+
+\RaggedRightParindent = 24pt
+
+%set code style
+\lstdefinestyle{default}
+{
+	language=C++,
+	frame=single,
+	tabsize=2,
+	numbers=left,
+	basicstyle=\small,
+	showstringspaces=false,
+	captionpos = b
+}
+\lstset{style=default}
+%opening
+
+\title{Modelling of Nanosecond time-scale Transient response of GaN LEDs \\ \textbf{Project Outline}}
+\author{Zachary Humphreys}
+\date{\centering ID: 200951438
+	\\02/02/2018 \bigskip
+\hrule \bigskip
+A Thesis Submitted in partial fulfilment of the requirements for the degree of:\\
+\textbf{Master of Physics} \\
+Under the supervision of Dr. Joachim Rose \\
+At the \\
+\textbf{Department of Physics}
+\bigskip
+\includegraphics[scale=0.6]{LiverpoolLogo}
+}
+
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\lstlistoflistings
+\listoffigures
+\listoftables
+\newpage
+
+\section*{Declaration}
+%\addcontentsline{toc}{Chapter}{Declaration}
+
+I, Zachary Humphreys, hereby declare that this thesis is my own work and effort and that it has not been submitted anywhere for any award. Where other sources of information have been used, they have been acknowledged.
+\bigskip \\
+\hrule
+\textit{Note: As this is the project outline, certain missing information, citations, and other incomplete sections will be labelled in \textbf{bold} font to bring attention to it.}
+\hrule
+
+\section{Abstract}
+\begin{center}
+In this thesis, the light emission properties of Gallium Nitride blue LEDs modelled and explained, particularly of note being the unusual characteristics of one being switched on and off on nanosecond timescales. \\ Switching under these conditions require high voltages in both the forwards and reverse biases and effects that can normally be ignored appear to have much larger effects under these conditions and time scales. \\ Switching LEDs under these time-scales could be of particular use in the calibration of large photo-detectors which focus on detection of very small \textbf{approx\#ofphotons} bursts of photons (such as Neutrino detection experiments)\textbf{findcitationforsuperK}, and so require similarly small, but consistent amounts for calibration.
+\end{center}
+
+
+
+\section{History \& Introduction}
+The very first semiconductor device was the photometer, developed by Von Siemens in 1875 \cite{G3Nsemicomp}(p6) (effectively a primitive solar cell) and hence, from the very inception of semiconductor devices, interaction with light has been closely related. However, it wasn't until 1907 until the electro-luminescence effect was discovered\cite{Sze}[p601] in the form of a point contact with a SiC substrate\cite{Sze}(p608) that emission of light, instead of absorption, was demonstrated. This electro-luminescence was different from radiative emission in both frequency and broadness of spectrum. But it wasn't for yet another 42 years, with the advent of the p-n junction in 1949, that the Light Emitting Diode (LED) as we know it today, was invented.\cite{Sze}(p608)\cite{G3Nsemicomp}(p1). \\
+Unfortunately, due to them being made of Indirect Band-gap semiconductors, they had very poor efficiency, and it's progress remained stagnant with a lack of commercialisation\cite{G3Nsemicomp} until the discovery of direct band-gap designs of GaAs in 1962 which had a much higher Quantum Efficiency leading to the first semiconductor laser. Soon after, in 1964, indirect bandgap materials also improved with the process of "doping" (addition of impurities) being discovered.\cite{Sze}(p608) \\
+Up until this point, all the discovered LED technology had led to LEDs with spectra in the Infrared to the lower frequency end of the visible spectrum and in 1971, Pankove et. al. reported the first GaN LED and hence, the first LEDs with frequencies in the blue to UV range. \cite{NSD}(p3) However, traditional methods growing crystals of this nature were difficult and would lead to progress in a different technique: Epitaxial growth, where a film of crystal is grown from the surface of another.\cite{G3Nsemicomp}(p8)\cite{Nakamura}(p4). The only problem was, all of the known materials that would produce blue light had short-comings. Of note, was the epitaxial growth of GaN had a lattice mismatch to its best substrate (Sapphire) of 13.8\% , compared with ZnSe (an alternative) on GaAs with a 0.3\% mismatch and could thus easily be grown with few defects, leading to high quality crystals.\cite{G3Nsemicomp}(p11,13)\cite{Nakamura}(p4). \\
+These films were generally deposited by either Molecular beam, or metalorganic vapour phase Epotaxy (MOVPE) but would require temperatures of $\approx1300$K and high pressures. As a result of the high rate of defects in GaN at the time ($10^9cm^{-2}$) made ZnSe generally the more popular choice for scientists ($10^3cm^{-2}$) which in turn, led to little research in the area.\cite{Nakamura}\\
+In 1990, Nakamura developed a technique (low carrier gas flow MOCVD) for producing high quality, uniform GaN using ammonia, but there was still the challenge of successfully doping it, meaning overcoming Mg acceptor dopant producing complexes with the H \cite{Nakamura}(p5) and finding a suitable Donor n-type. The first GaN pn junction was created in 1991 with an output power of $42\mu W$ and a External Quantum Efficiency of 0.18\% at a wavelength of 430nm (far lower than the minimum 1mW for usefulness.) \\
+Only after the discovery of InGaN, and its ideal properties as an active layer in a Double Heterostructure (DH), where it's bandgap was able to be tightly controlled through level of doping with tight control was the first Blue DH LED created, in 1993 which\cite{Nakamura}(p7), in turn, would lead to the first white LED with the addition of a white-phosphor\cite{Sze}(p608), \\The highest External Quantum efficiencies for LEDs are being achieved by GaInP encased in epoxy with 55\%,\cite{EQE} a massive improvement from the earliest versions of LEDs. In comparison, an oil lamp produces approximately $0.1lmW^{-1}$, an incandesceent bulb produces  $16lmW^{-1}$, fluorescent  $70lmW^{-1}$, but an LED will produce  $300lmW^{-1}$\cite{Nakamura}(p3) and the very first pn junction laser diode in visible spectrum of  $\approx 0.1lmW^{-1}$ created by Holonyak in 1962. \cite{Kittel}(p580)\\
+Due to their high efficiency and ability to be tightly controlled, LEDs have been implemented in many technologies from simple indicator lights, to room illumination, but recently, they've been considered for calibration of Large photo-detection experiments such as Hyper-K and ANTARES neutrino detection experiments, where they aim to detect the Cherenkov radiation from Muon's produced by neutrinos interacting with matter. These interaction create very short pulses of very few photons of approximately blue colour, and thus, a similar pulse of light would be preferable to calibrate such an experiment.\textbf{CITATIONS NEEDED} \\
+For this, the use of Blue, GaN-based LEDs pulsed at nano-second time-scales has been proposed. However, as the lifetime of charge carriers in these materials is on the order of nanoseconds for InGaN/AlGaN DH LEDs\cite{Brailovsky}, it has generally been considered practically impossible to produce such results, and conventional methods for driving LEDs result in rather low switching frequencies on the order of 1GHz. \\ To the contrary, it has been demonstrated that such pulses can be achieved experimentally \textbf{Rose citation?} and thus, an investigation into the mechanism will be conducted as the objective of this thesis, and whether experimental results can be simulated with current models and understanding.
+
+
+\section{Background Physics and Past Work}
+Explain first pn Junction, then pn junction structures, band gaps, LED homo vs hetero structure, and then the fundamental basis of recombination and how it leads to photon emission $\rightarrow$ LEDs. \footnote{(Note to self, Kittel has some good diagrams and basic explainations)}\\
+Discuss the Numerical Boltzmann Transport theory based on scattering, and explain that due to time, understanding, and knowledge constraints, this was not a practical option, but still talk about the overview of how it worked.
+Discuss drift diffusion equation and how its the basis of much of many of the other theories.
+Briefly outline the quantum model, and again discuss how it wasn't practical to go this route with the number of unknowns in the project.
+\subsection{Windisch}
+In this section will outline the \textbf{Windisch} paper, and it's modelling of instantaneous switching, no loss of charges out of device (LED acts as a charge "Bucket" with $R_{in} = \frac{J}{q\omega} $). Discuss how it assumes negligible Non-radiative recombination.
+\subsection{Brailovsky \& Mitin}
+Discuss the analytical solution they provide, the massive reverse current predicted, and their neglection of drift current in their analytical model, but how this massive reverse current might actually be the source of the fast-switching of the LED, faster than expected.
+\section{Method}
+In this section, the discussion of the methods used to model the LED will be disclosed. The first section will describe the general principle and concepts of how the LED was to be modelled, with the second half detailing each step of how the code was produced from a total breakdown of those concepts. \\ For example: The breakdown of how the Electronic potentials were determined at each point on the 1D device, how the second order differential can be approximated as below (from Taylor expansion):
+\begin{eqnarray}
+	&V \propto \nabla^2 n = \dfrac{\partial^2n}{\partial x^2}\Big|_{\lim\limits_{1D}} \\
+	\hookrightarrow &\dfrac{d^2n}{dx^2} \approx \dfrac{n_{i-1} - 2n_i + n_{i+1}}{(\Delta x)^2}
+\end{eqnarray}
+\subsection{Charge carrier transport depth}
+With application of an external potential upon an LED, charges will flow from the attached wires into the device with a set velocity. This velocity can be used to work out, approximately, how far charges within the device will travel, given a set amount of time. The velocity for electrons is given by the semi empirical formula\cite{NSD}(p76):
+\begin{equation}
+v_n(E) = \dfrac{[\mu_{n0}E+v_{nsat}(\frac{E}{E_{cr}})^{\beta_1}]}{[1+(\frac{E}{E_{cr}})^{\beta_1}+a(\frac{E}{E_{cr}})^{\beta_2}]}
+\end{equation}
+where $E$ is the applied electric field upon bulk, $E_{cr}$ is the critical field, $v_{nsat}$ is the saturation velocity, and $a, \beta_1, \beta_2$ are fitting parameters. \\ 
+By applying the parameters of the experiment to the equation, it can be found that the charges from the external source don't penetrate more than $5\mu m$ into the device, not far enough to reach the pn junction. This suggests the light emitted during this time frame is entirely from charges directly adjacent to the junction within the device, and hence the large current is a result of these. 
+
+
+\section{Results}
+This section will simply contain any graphs of importance for model and real results, such as the $\sigma_{FWHM}(\ln(N_{\gamma}))$, $J_n(t)$, $J_n(x)$, potentially $N_{\gamma}(T)$ and the graph of n-doped and p-doped segments coming together and their $n(x,t)$ graph. \\ These will come with brief descriptions and overview of the data they contain including initial condition parameters, choices of constants, and references to the code in the appendix that generated them.
+\section{Discussion}
+In this section, the results of the modelling compared to real-world results will be discussed. Topics of interest will be: Does the model predict the $N_{\gamma} \propto t^{3} $ results instead of the linear response predicted by Windisch's instantaneous current model ( $N_{\gamma} \propto t^{2} $) or does it manage the closer to experimental result of $t^{4}$?\\
+Discuss the model's simulated capacitance and whether it's similar to that measured experimentally, or predicted by \textbf{Veledar}.\\
+Did the model produce any temperature dependency graphs for photon emission, and if so, how do they again compare to experimental results?
+
+\section{Conclusion}
+In this section talk about the limits of the model (only 1D, inaccuracies with reality, etc) and discuss known ways to improve it. Discuss reasons for them not already being implemented (lack of knowledge about device[read: band structure, dimension, composition], more accurate models much more time consuming to build, etc...) \\
+
+
+\section{References}
+This section will be filled automatically by using BibTeX once I've started putting together the .bib file.\\
+I intend to reference in a similar form to standard reference, but include page number for each. For example:\\
+\fbox{\begin{minipage}{10cm}
+	...leads to the well known drift diffusion current[4](p305) [6](p108):
+	\begin{equation}
+	J_{n} = q \mu_n n \vec{E} + q D_n \Delta n
+	\end{equation}
+\end{minipage}}
+\medbreak
+Format requested: "Last name, First initial. (Year published). Article title. Journal, Volume (Issue)" \textbf{How do I get it in that form $\downarrow$ ?}
+\bibliography{thesis_ref}{}
+\bibliographystyle{ieeetr}
+\bigskip
+
+\section{Appendix}
+In this section I will include any data I may have, and include all\textbf{(?)} the code produced for the project. An example code snippet to demonstrate formatting:\smallskip
+\begin{lstlisting}[caption = Hello world example code.]
+	int main()
+	{
+		std::cout<<"Hello world!"<<std::endl;
+	}
+\end{lstlisting}
+\medskip
+An example of some raw data would be formatted into a table as such:\\
+\begin{table}[h]
+	\centering
+	\begin{tabular}{|l|c|c|}
+		\hline
+		\textbf{Name} & \textbf{A} & \textbf{B} \\
+		\hline
+		First & 1 & 2 \\
+		Second & 3 & 4 \\
+		\hline
+	\end{tabular}
+	\caption{\label{tab:appendixTest} This table is purely for demonstration of format.}
+\end{table}
+and will be referenced in the text as such[Table:\ref{tab:appendixTest}].
+\end{document}
