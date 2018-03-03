@@ -138,7 +138,7 @@ void Device_1D::calculateVoltages()
 	}
 }
 
-void Device_1D::calculateJnL(bool bDiff, bool bDrift)
+void Device_1D::calculateJnL(bool bDiff, bool bDrift, int exchangeScale)
 {
 	//If both drift and diffusion are requested
 	if (bDiff&&bDrift)
@@ -154,8 +154,8 @@ void Device_1D::calculateJnL(bool bDiff, bool bDrift)
 			else	//Do normal calculation
 			{
 				double JnL = kB*T*mu*(((nAry[i].n - nAry[i - 1].n) / nodeWidth) - (q / (2 * nodeWidth))*(nAry[i].V - nAry[i - 1].V)*(nAry[i].n + nAry[i - 1].n));
-				nAry[i].n = nAry[i].n - JnL;
-				nAry[i - 1].n = nAry[i - 1].n + JnL;
+				nAry[i].n = nAry[i].n - (JnL*exchangeScale);
+				nAry[i - 1].n = nAry[i - 1].n + (JnL*exchangeScale);
 			}
 		}
 	}
@@ -173,8 +173,8 @@ void Device_1D::calculateJnL(bool bDiff, bool bDrift)
 			else	//Do normal calculation
 			{
 				double JnL = kB*T*mu*((nAry[i].n - nAry[i - 1].n) / nodeWidth);
-				nAry[i].n = nAry[i].n - JnL;
-				nAry[i - 1].n = nAry[i - 1].n + JnL;
+				nAry[i].n = nAry[i].n - (JnL*exchangeScale);
+				nAry[i - 1].n = nAry[i - 1].n + (JnL*exchangeScale);
 			}
 		}
 	}
@@ -192,8 +192,8 @@ void Device_1D::calculateJnL(bool bDiff, bool bDrift)
 			else	//Do normal calculation
 			{
 				double JnL = kB*T*mu*-(q / (2 * nodeWidth))*(nAry[i].V - nAry[i - 1].V)*(nAry[i].n + nAry[i - 1].n);
-				nAry[i].n = nAry[i].n - JnL;
-				nAry[i - 1].n = nAry[i - 1].n + JnL;
+				nAry[i].n = nAry[i].n - (JnL*exchangeScale);
+				nAry[i - 1].n = nAry[i - 1].n + (JnL*exchangeScale);
 			}
 		}
 	}
@@ -204,7 +204,7 @@ void Device_1D::calculateJnL(bool bDiff, bool bDrift)
 	}
 }
 
-void Device_1D::calculateJpL(bool bDiff, bool bDrift)
+void Device_1D::calculateJpL(bool bDiff, bool bDrift, int exchangeScale)
 {
 	//If both drift and diffusion are requested
 	if (bDiff&&bDrift)
@@ -221,8 +221,8 @@ void Device_1D::calculateJpL(bool bDiff, bool bDrift)
 			else	//Do normal calculation
 			{
 				double JpL = kB*T*mu*(((nAry[i].p - nAry[i - 1].p) / nodeWidth) + (q / (2 * nodeWidth))*(nAry[i].V - nAry[i - 1].V)*(nAry[i].p + nAry[i - 1].p));
-				nAry[i].p = nAry[i].p - JpL;
-				nAry[i - 1].p = nAry[i - 1].p + JpL;
+				nAry[i].p = nAry[i].p - (JpL*exchangeScale);
+				nAry[i - 1].p = nAry[i - 1].p + (JpL*exchangeScale);
 			}
 		}
 	}
@@ -241,8 +241,8 @@ void Device_1D::calculateJpL(bool bDiff, bool bDrift)
 			else	//Do normal calculation
 			{
 				double JpL = kB*T*mu*(((nAry[i].p - nAry[i - 1].p) / nodeWidth));
-				nAry[i].p = nAry[i].p - JpL;
-				nAry[i - 1].p = nAry[i - 1].p + JpL;
+				nAry[i].p = nAry[i].p - (JpL*exchangeScale);
+				nAry[i - 1].p = nAry[i - 1].p + (JpL*exchangeScale);
 			}
 		}
 	}
@@ -261,8 +261,8 @@ void Device_1D::calculateJpL(bool bDiff, bool bDrift)
 			else	//Do normal calculation
 			{
 				double JpL = kB*T*mu*(q / (2 * nodeWidth))*(nAry[i].V - nAry[i - 1].V)*(nAry[i].p + nAry[i - 1].p);
-				nAry[i].p = nAry[i].p - JpL;
-				nAry[i - 1].p = nAry[i - 1].p + JpL;
+				nAry[i].p = nAry[i].p - (JpL*exchangeScale);
+				nAry[i - 1].p = nAry[i - 1].p + (JpL*exchangeScale);
 			}
 		}
 	}

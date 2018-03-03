@@ -35,14 +35,16 @@ public:
 	DON'T CALL WITH FALSE FALSE, SILLY.
 	@param bDiff : Enable Diffusion in calculation
 	@param bDrift : Enable Drift in calculation
+	@param exchangeScale: Applies calculation this many times without full state recalc.
 	*/
-	void calculateJnL(bool bDiff, bool bDrift);
+	void calculateJnL(bool bDiff, bool bDrift,int exchangeScale);
 	/*Calculate the left direction current for holes
 	DON'T CALL WITH FALSE FALSE, SILLY.
 	@param bDiff : Enable Diffusion in calculation
 	@param bDrift : Enable Drift in calculation
+	@param exchangeScale: Applies calculation this many times without full state recalc.
 	*/
-	void calculateJpL(bool bDiff, bool bDrift);
+	void calculateJpL(bool bDiff, bool bDrift,int exchangeScale);
 
 private:
 	//Don't call me
