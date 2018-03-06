@@ -13,6 +13,10 @@ public:
 	/*Constructors & Destructors*/
 
 	Device_1D( double Length, std::size_t noOfNodes, std::size_t transitionNode, double NdDensity, double NaDensity);
+	//Construct device from file
+	Device_1D(std::ifstream &instream);
+
+
 	~Device_1D();
 	double length;
 	double nodeWidth;
@@ -45,6 +49,9 @@ public:
 	@param exchangeScale: Applies calculation this many times without full state recalc.
 	*/
 	void calculateJpL(bool bDiff, bool bDrift,int exchangeScale);
+
+	//Full Jn calculation
+	void Device_1D::calculateJnLEC(int exchangeScale);
 
 private:
 	//Don't call me

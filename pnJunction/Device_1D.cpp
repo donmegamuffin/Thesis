@@ -10,7 +10,6 @@ Device_1D::Device_1D()
 {
 }
 
-
 Device_1D::Device_1D(double Length, std::size_t noOfNodes, std::size_t transitionNode, double NdDensity, double NaDensity)
 {
 	length = Length;
@@ -29,6 +28,47 @@ Device_1D::Device_1D(double Length, std::size_t noOfNodes, std::size_t transitio
 	for (std::size_t i = transitionNode; i < noOfNodes; i++)
 	{
 		nAry[i] = { NdDensity, 0, NdDensity, 0 };
+	}
+}
+
+Device_1D::Device_1D(std::ifstream &instream)
+{
+	//Takes file input for number of nodes to store
+	int numberOfNodes = 0;
+	//Read the length and number of nodes from top of file
+	instream >> length >> numberOfNodes;
+	//Resize the Node array to correct number
+	nAry.resize(numberOfNodes);
+	//Calculate the nodewidth
+	nodeWidth = length / nAry.size();
+	//Begin going line by line to input the different node variables
+	for (std::size_t i = 0; i < numberOfNodes; i++)
+	{
+		instream >> nAry[i].n;
+	}
+	for (std::size_t i = 0; i < numberOfNodes; i++)
+	{
+		instream >> nAry[i].p;
+	}
+	for (std::size_t i = 0; i < numberOfNodes; i++)
+	{
+		instream >> nAry[i].Nd;
+	}
+	for (std::size_t i = 0; i < numberOfNodes; i++)
+	{
+		instream >> nAry[i].Na;
+	}
+	for (std::size_t i = 0; i < numberOfNodes; i++)
+	{
+		instream >> nAry[i].V;
+	}
+	for (std::size_t i = 0; i < numberOfNodes; i++)
+	{
+		instream >> nAry[i].Ec;
+	}
+	for (std::size_t i = 0; i < numberOfNodes; i++)
+	{
+		instream >> nAry[i].Ev;
 	}
 }
 
@@ -272,4 +312,25 @@ void Device_1D::calculateJpL(bool bDiff, bool bDrift, int exchangeScale)
 	{
 		std::cout << "calculateJpL was called with False False. Go fix.\n";
 	}
+}
+
+/*------------------------TEST---------------------------------------*/
+void Device_1D::calculateJnLEC(int exchangeScale)
+{
+	//Loop through each of the nodes
+		for (std::size_t i = 0; i < nAry.size(); i++)
+		{
+			//If node is at a cap position change calculation
+			if (i == 0 || i == (nAry.size() - 1))
+			{
+				//TODO Do a different calculation
+				nAry[i].n = 0;
+			}
+			else	//Do normal calculation
+			{
+				double JnL = kB*T*mu*(((nAry[i].n - nAry[i - 1].n) / nodeWidth) - (q / (2 * nodeWidth))*(nAry[i].V - nAry[i - 1].V)*(nAry[i].n + nAry[i - 1].n));
+				nAry[i].n = nAry[i].n - (JnL*exchangeScale);
+				nAry[i - 1].n = nAry[i - 1].n + (JnL*exchangeScale);
+			}
+		}
 }
