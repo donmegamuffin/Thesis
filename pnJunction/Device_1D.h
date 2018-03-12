@@ -35,23 +35,33 @@ public:
 //Voltage calculation functions
 	void calculateVoltages();
 //Charge transfer functions
-	/*Calculate the left direction current for electrons
+	/*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	DEPRECIATED AND BUGGED!
+	USE "calculateJnLEC(...)" INSTEAD!
+	XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	Calculate the left direction current for electrons
 	DON'T CALL WITH FALSE FALSE, SILLY.
 	@param bDiff : Enable Diffusion in calculation
 	@param bDrift : Enable Drift in calculation
 	@param exchangeScale: Applies calculation this many times without full state recalc.
 	*/
 	void calculateJnL(bool bDiff, bool bDrift,int exchangeScale);
-	/*Calculate the left direction current for holes
+	
+	/*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	DEPRECIATED AND BUGGED!
+	USE "calculateJpLEV(...)" INSTEAD!
+	XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	Calculate the left direction current for holes
 	DON'T CALL WITH FALSE FALSE, SILLY.
 	@param bDiff : Enable Diffusion in calculation
 	@param bDrift : Enable Drift in calculation
 	@param exchangeScale: Applies calculation this many times without full state recalc.
 	*/
 	void calculateJpL(bool bDiff, bool bDrift,int exchangeScale);
-
-	//Full Jn calculation
-	void Device_1D::calculateJnLEC(int exchangeScale);
+	
+	//Full Jn/Jp calculations
+	void calculateJnLEC(int exchangeScale);
+	void calculateJpLEV(int exchangeScale);
 
 private:
 	//Don't call me
