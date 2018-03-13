@@ -315,7 +315,7 @@ void Device_1D::calculateJpL(bool bDiff, bool bDrift, int exchangeScale)
 }
 
 /*------------------------TEST---------------------------------------*/
-void Device_1D::calculateJnLEC(int exchangeScale)
+void Device_1D::calculateJnLEC(double exchangeScale)
 {
 	//Loop through each of the nodes(except last)
 	for (std::size_t i = 1; i < nAry.size(); i++)
@@ -326,7 +326,7 @@ void Device_1D::calculateJnLEC(int exchangeScale)
 	}
 }
 
-void Device_1D::calculateJpLEV(int exchangeScale)
+void Device_1D::calculateJpLEV(double exchangeScale)
 {
 	//Loop through each of the nodes(except last)
 	for (std::size_t i = 1; i < nAry.size(); i++)

@@ -60,8 +60,8 @@ public:
 	void calculateJpL(bool bDiff, bool bDrift,int exchangeScale);
 	
 	//Full Jn/Jp calculations
-	void calculateJnLEC(int exchangeScale);
-	void calculateJpLEV(int exchangeScale);
+	void calculateJnLEC(double exchangeScale);
+	void calculateJpLEV(double exchangeScale);
 
 private:
 	//Don't call me
