@@ -317,40 +317,22 @@ void Device_1D::calculateJpL(bool bDiff, bool bDrift, int exchangeScale)
 /*------------------------TEST---------------------------------------*/
 void Device_1D::calculateJnLEC(int exchangeScale)
 {
-	//Loop through each of the nodes
-		for (std::size_t i = 0; i < nAry.size(); i++)
-		{
-			//If node is at a cap position change calculation
-			if (i == 0 || i == (nAry.size() - 1))
-			{
-				//TODO Do a different calculation
-				nAry[i].n = 0;
-			}
-			else	//Do normal calculation
-			{
-				double JnL = mu*(kB*T*((nAry[i].n - nAry[i - 1].n) / nodeWidth) - (q / (2 * nodeWidth))*(nAry[i].V - nAry[i - 1].V)*(nAry[i].n + nAry[i - 1].n) ) + ((nAry[i].n + nAry[i+1].n)/2)*((nAry[i+1].Ec-nAry[i].Ec)/nodeWidth);
-				nAry[i].n = nAry[i].n - (JnL*exchangeScale);
-				nAry[i - 1].n = nAry[i - 1].n + (JnL*exchangeScale);
-			}
-		}
+	//Loop through each of the nodes(except last)
+	for (std::size_t i = 1; i < nAry.size(); i++)
+	{
+		double JnL = mu*(kB*T*((nAry[i].n - nAry[i - 1].n) / nodeWidth) - (q / (2 * nodeWidth))*(nAry[i].V - nAry[i - 1].V)*(nAry[i].n + nAry[i - 1].n) ) + ((nAry[i].n + nAry[i-1].n)/2)*((nAry[i].Ec-nAry[i-1].Ec)/nodeWidth);
+		nAry[i].n = nAry[i].n - (JnL*exchangeScale);
+		nAry[i - 1].n = nAry[i - 1].n + (JnL*exchangeScale);
+	}
 }
 
 void Device_1D::calculateJpLEV(int exchangeScale)
 {
-	//Loop through each of the nodes
-	for (std::size_t i = 0; i < nAry.size(); i++)
+	//Loop through each of the nodes(except last)
+	for (std::size_t i = 1; i < nAry.size(); i++)
 	{
-		//If node is at a cap position change calculation
-		if (i == 0 || i == (nAry.size() - 1))
-		{
-			//TODO Do a different calculation
-			nAry[i].p = 0;
-		}
-		else	//Do normal calculation
-		{
-			double JpL = mu*(kB*T*((nAry[i].p - nAry[i - 1].p) / nodeWidth) + (q / (2 * nodeWidth))*(nAry[i].V - nAry[i - 1].V)*(nAry[i].p + nAry[i - 1].p)) + ((nAry[i].p + nAry[i + 1].p) / 2)*((nAry[i + 1].Ev - nAry[i].Ev) / nodeWidth);
-			nAry[i].p = nAry[i].p - (JpL*exchangeScale);
-			nAry[i - 1].p = nAry[i - 1].p + (JpL*exchangeScale);
-		}
+		double JpL = mu*(kB*T*((nAry[i].p - nAry[i - 1].p) / nodeWidth) + (q / (2 * nodeWidth))*(nAry[i].V - nAry[i - 1].V)*(nAry[i].p + nAry[i - 1].p)) + ((nAry[i].p + nAry[i - 1].p) / 2)*((nAry[i].Ev - nAry[i-1].Ev) / nodeWidth);
+		nAry[i].p = nAry[i].p - (JpL*exchangeScale);
+		nAry[i - 1].p = nAry[i - 1].p + (JpL*exchangeScale);
 	}
 }
