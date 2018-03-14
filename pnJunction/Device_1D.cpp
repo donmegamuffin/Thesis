@@ -315,26 +315,32 @@ void Device_1D::calculateJpL(bool bDiff, bool bDrift, int exchangeScale)
 }
 
 /*------------------------TEST---------------------------------------*/
-void Device_1D::calculateJnLEC(double exchangeScale)
+double Device_1D::calculateJnLEC(double exchangeScale)
 {
+	double JnL_cum = 0;	//Cumulative current from all nodes calculations
 	//Loop through each of the nodes(except first)
 	for (std::size_t i = 1; i < nAry.size(); i++)
 	{
 		double JnL = mu*(kB*T*((nAry[i].n - nAry[i - 1].n) / nodeWidth) - (q / (2 * nodeWidth))*(nAry[i].V - nAry[i - 1].V)*(nAry[i].n + nAry[i - 1].n) ) + ((nAry[i].n + nAry[i-1].n)/2)*((nAry[i].Ec-nAry[i-1].Ec)/nodeWidth);
 		nAry[i].n = nAry[i].n - (JnL*exchangeScale);
 		nAry[i - 1].n = nAry[i - 1].n + (JnL*exchangeScale);
+		JnL_cum += abs(JnL);
 	}
+	return JnL_cum;
 }
 
-void Device_1D::calculateJpLEV(double exchangeScale)
+double Device_1D::calculateJpLEV(double exchangeScale)
 {
+	double JpL_cum = 0;	//Cumulative current from all nodes calculations
 	//Loop through each of the nodes(except first)
 	for (std::size_t i = 1; i < nAry.size(); i++)
 	{
 		double JpL = mu*(kB*T*((nAry[i].p - nAry[i - 1].p) / nodeWidth) + (q / (2 * nodeWidth))*(nAry[i].V - nAry[i - 1].V)*(nAry[i].p + nAry[i - 1].p)) + ((nAry[i].p + nAry[i - 1].p) / 2)*((nAry[i].Ev - nAry[i-1].Ev) / nodeWidth);
 		nAry[i].p = nAry[i].p - (JpL*exchangeScale);
 		nAry[i - 1].p = nAry[i - 1].p + (JpL*exchangeScale);
+		JpL_cum += abs(JpL);
 	}
+	return JpL_cum;
 }
 
 //EXPERIMENTAL
@@ -398,4 +404,25 @@ double Device_1D::calcRadRecombine(double timeScale)
 		nAry[i].p -= sqrt(B)*nAry[i].p;
 	}
 	return RadCum;
+}
+
+void Device_1D::bringToEqm(double Tolerance, double exchangeScale, bool bPrintCurent)
+{
+	//Initialise total current of device
+	double Jtot = 1e18;
+	//Whilst the current is higher than the current equilibrium limit
+	//Loop until Jtot is below user defined limit
+	while (Jtot > Tolerance)
+	{
+		//Find total current of charges being shifted across entire device
+		//by running the two current calculations across entire device
+		Jtot = calculateJnLEC(exchangeScale) + calculateJpLEV(exchangeScale);
+		//Rebalance voltages
+		calculateVoltages();
+		//Make sure to cancel out any charges that would annihilate each other in device
+		cancelCharges();
+		//OPTIONAL : Print the current found to console
+		if (bPrintCurent) { std::cout << Jtot << std::endl; }
+	}
+	return;
 }

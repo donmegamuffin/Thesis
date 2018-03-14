@@ -68,13 +68,13 @@ public:
 	for all nodes in the device from Left to Right
 	@param exchangeScale - aproximation scaling modifier. Higher = faster but less precise.
 	*/
-	void calculateJnLEC(double exchangeScale);
+	double calculateJnLEC(double exchangeScale);
 	/*
 	Does full current and charge density exchange for HOLES
 	for all nodes in the device from Left to Right
 	@param exchangeScale - aproximation scaling modifier. Higher = faster but less precise.
 	*/
-	void calculateJpLEV(double exchangeScale);
+	double calculateJpLEV(double exchangeScale);
 
 	//EXPERIMENTAL
 	void calculateJnLEC_MT(double exchangeScale);
@@ -87,6 +87,10 @@ public:
 	void calculateJnREC(double exchangeScale);
 
 	double calcRadRecombine(double timeScale);
+
+	void bringToEqm(double Tolerance, double exchangeScale, bool bPrintCurent);
+
+	void fSaveDevice(std::ofstream saveStream);
 
 private:
 	//Don't call me
