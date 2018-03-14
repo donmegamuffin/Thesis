@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Device_1D.h"
 #include "Node.h"
-
+#include <thread>
 
 
 
@@ -317,7 +317,7 @@ void Device_1D::calculateJpL(bool bDiff, bool bDrift, int exchangeScale)
 /*------------------------TEST---------------------------------------*/
 void Device_1D::calculateJnLEC(double exchangeScale)
 {
-	//Loop through each of the nodes(except last)
+	//Loop through each of the nodes(except first)
 	for (std::size_t i = 1; i < nAry.size(); i++)
 	{
 		double JnL = mu*(kB*T*((nAry[i].n - nAry[i - 1].n) / nodeWidth) - (q / (2 * nodeWidth))*(nAry[i].V - nAry[i - 1].V)*(nAry[i].n + nAry[i - 1].n) ) + ((nAry[i].n + nAry[i-1].n)/2)*((nAry[i].Ec-nAry[i-1].Ec)/nodeWidth);
@@ -328,11 +328,74 @@ void Device_1D::calculateJnLEC(double exchangeScale)
 
 void Device_1D::calculateJpLEV(double exchangeScale)
 {
-	//Loop through each of the nodes(except last)
+	//Loop through each of the nodes(except first)
 	for (std::size_t i = 1; i < nAry.size(); i++)
 	{
 		double JpL = mu*(kB*T*((nAry[i].p - nAry[i - 1].p) / nodeWidth) + (q / (2 * nodeWidth))*(nAry[i].V - nAry[i - 1].V)*(nAry[i].p + nAry[i - 1].p)) + ((nAry[i].p + nAry[i - 1].p) / 2)*((nAry[i].Ev - nAry[i-1].Ev) / nodeWidth);
 		nAry[i].p = nAry[i].p - (JpL*exchangeScale);
 		nAry[i - 1].p = nAry[i - 1].p + (JpL*exchangeScale);
 	}
+}
+
+//EXPERIMENTAL
+void Device_1D::calculateJnLEC_MT(double exchangeScale)
+{	//MT = Multithreaded
+	
+	//Loop through each of the nodes(except last)
+	for (std::size_t i = 1; i < nAry.size(); i++)
+	{
+		double JnL = mu*(kB*T*((nAry[i].n - nAry[i - 1].n) / nodeWidth) - (q / (2 * nodeWidth))*(nAry[i].V - nAry[i - 1].V)*(nAry[i].n + nAry[i - 1].n)) + ((nAry[i].n + nAry[i - 1].n) / 2)*((nAry[i].Ec - nAry[i - 1].Ec) / nodeWidth);
+		nAry[i].n = nAry[i].n - (JnL*exchangeScale);
+		nAry[i - 1].n = nAry[i - 1].n + (JnL*exchangeScale);
+	}
+}
+
+void Device_1D::injectCharges(double CurrentDensity, double injectionDuration)
+{
+	//Assumes p-n style device. Inject p in left, n on right.
+	nAry[0].n += (CurrentDensity*injectionDuration);
+	nAry[nAry.size() - 1].p += (CurrentDensity*injectionDuration);
+	return;
+}
+
+void Device_1D::cancelCharges()
+{
+	//For each node in the array, take ALL of the minor charge carrier away from both major and minor
+	//Loop through each of the nodes
+	for (std::size_t i = 0; i < nAry.size(); i++)
+	{
+		if(nAry[i].n < nAry[i].p)	
+		{
+			nAry[i].p = nAry[i].p - nAry[i].n;
+			nAry[i].n = 0;
+		}
+		else
+		{
+			nAry[i].n = nAry[i].n - nAry[i].p;
+			nAry[i].p = 0;
+		}
+	}
+}
+
+void Device_1D::calculateJnREC(double exchangeScale)
+{
+	//Loop through each of the nodes(except first)
+	for (std::size_t i = nAry.size()-1; i > 0; i--)
+	{
+		double JnL = mu*(kB*T*((nAry[i].n - nAry[i - 1].n) / nodeWidth) - (q / (2 * nodeWidth))*(nAry[i].V - nAry[i - 1].V)*(nAry[i].n + nAry[i - 1].n)) + ((nAry[i].n + nAry[i - 1].n) / 2)*((nAry[i].Ec - nAry[i - 1].Ec) / nodeWidth);
+		nAry[i].n = nAry[i].n - (JnL*exchangeScale);
+		nAry[i - 1].n = nAry[i - 1].n + (JnL*exchangeScale);
+	}
+}
+
+double Device_1D::calcRadRecombine(double timeScale)
+{
+	double RadCum = 0;
+	for (std::size_t i = 0; i < nAry.size(); i++)
+	{
+		RadCum += B*nAry[i].n*nAry[i].p; 
+		nAry[i].n -= sqrt(B)*nAry[i].n;
+		nAry[i].p -= sqrt(B)*nAry[i].p;
+	}
+	return RadCum;
 }

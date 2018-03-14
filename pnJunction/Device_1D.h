@@ -21,7 +21,10 @@ public:
 	double length;
 	double nodeWidth;
 	std::vector<Node> nAry;
-
+	const double B = 2.4e-17;
+	
+	//EXPERIMENTAL
+	//std::vector<std::thread> threadArray;
 
 
 //Printing functions
@@ -60,8 +63,30 @@ public:
 	void calculateJpL(bool bDiff, bool bDrift,int exchangeScale);
 	
 	//Full Jn/Jp calculations
+	/*
+	Does full current and charge density exchange for ELECTRONS
+	for all nodes in the device from Left to Right
+	@param exchangeScale - aproximation scaling modifier. Higher = faster but less precise.
+	*/
 	void calculateJnLEC(double exchangeScale);
+	/*
+	Does full current and charge density exchange for HOLES
+	for all nodes in the device from Left to Right
+	@param exchangeScale - aproximation scaling modifier. Higher = faster but less precise.
+	*/
 	void calculateJpLEV(double exchangeScale);
+
+	//EXPERIMENTAL
+	void calculateJnLEC_MT(double exchangeScale);
+
+	void injectCharges(double CurrentDensity, double injectionDuration);
+
+	void cancelCharges();
+
+	//Same as normal function, but runs from R to L
+	void calculateJnREC(double exchangeScale);
+
+	double calcRadRecombine(double timeScale);
 
 private:
 	//Don't call me
