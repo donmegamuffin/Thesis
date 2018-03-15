@@ -25,6 +25,8 @@ private:
 	double nodeWidth;			//Calculated length of each node
 	std::vector<Node> nAry;		//Data storage for all nodes
 	const double B = 2.4e-17;	//Rad recombine constant
+	double QE;
+	double A;
 
 public:
 //Printing functions
@@ -106,5 +108,8 @@ public:
 private:
 	//Converts .CSV file to an internal .dic file
 	void csv2dic(std::ifstream &csvFileStream, std::string fileName);
+
+	//Effectively Calculates the voltage tent map [Copied from my cap sim]
+	double calcV(double time, double transition_time);
 };
 

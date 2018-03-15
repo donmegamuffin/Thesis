@@ -10,8 +10,11 @@ Device_1D::Device_1D()
 {
 	length = 1;	//prevents any weird div by 0 errors
 	nodeWidth = 0;
+	QE = 0;
+	A = 0;
 }
 
+//DEPRECIATED
 Device_1D::Device_1D(double Length, std::size_t noOfNodes, std::size_t transitionNode, double NdDensity, double NaDensity)
 {
 	length = Length;
@@ -38,7 +41,7 @@ Device_1D::Device_1D(std::ifstream &instream)
 	//Takes file input for number of nodes to store
 	int numberOfNodes = 0;
 	//Read the length and number of nodes from top of file
-	instream >> length >> numberOfNodes;
+	instream >> length >> numberOfNodes >> A >> QE;
 	//Resize the Node array to correct number
 	nAry.resize(numberOfNodes);
 	//Calculate the nodewidth
@@ -312,7 +315,7 @@ double Device_1D::calcRadRecombine(double timeScale)
 
 void Device_1D::fSaveDevice(std::ofstream & saveStream)
 {
-	saveStream << length << "," << nAry.size() << std::endl;
+	saveStream << length << "," << nAry.size() << "," << QE << "," << A << std::endl;
 	for (auto a : nAry)
 	{
 		saveStream << a.n << ",";
@@ -429,4 +432,13 @@ void Device_1D::csv2dic(std::ifstream &csvFileStream, std::string fileName)
 	dicFileStream.close();
 }
 
+//Effectively Calculates the voltage tent map [Copied from my cap sim]
+double Device_1D::calcV(double time, double transition_time)
+{
+	double Vramp = 4e9;
+	if (time < transition_time)
+		return Vramp * time;
+	else
+		return Vramp * ((2 * transition_time) - time);
+}
 
