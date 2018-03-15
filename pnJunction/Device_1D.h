@@ -76,6 +76,25 @@ public:
 	*/
 	double calculateJpLEV(double exchangeScale);
 
+	/* Runs current calculations on device until combined current is less than the tolerance
+		@param Tolerance:	total current considered to be EQM
+		@param exchangeScale: How approximate want the calculation. Large = More approx but faster.
+				A good value for a simple device about ~1000000
+		@param bPrintCurrent: if true, will print the total current to console.
+	*/
+	void bringToEqm(double Tolerance, double exchangeScale, bool bPrintCurent);
+	
+	/* Runs current calculations on device until combined current is less than the tolerance and prints to file
+		@param Tolerance:	total current considered to be EQM
+		@param exchangeScale: How approximate want the calculation. Large = More approx but faster.
+			A good value for a simple device about ~1000000
+		@param fileOutput:	The output stream used to print results to.
+		@param bPrintCurrent: if true, will print the total current to console.
+		
+	*/
+	void bringToEqm(double Tolerance, double exchangeScale, std::ostream &fileOutput, bool bPrintConsole);
+
+
 	//EXPERIMENTAL
 	void calculateJnLEC_MT(double exchangeScale);
 
@@ -88,9 +107,9 @@ public:
 
 	double calcRadRecombine(double timeScale);
 
-	void bringToEqm(double Tolerance, double exchangeScale, bool bPrintCurent);
+	
 
-	void fSaveDevice(std::ofstream saveStream);
+	void fSaveDevice(std::ofstream &saveStream);
 
 private:
 	//Don't call me

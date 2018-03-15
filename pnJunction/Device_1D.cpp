@@ -406,6 +406,46 @@ double Device_1D::calcRadRecombine(double timeScale)
 	return RadCum;
 }
 
+void Device_1D::fSaveDevice(std::ofstream & saveStream)
+{
+	saveStream << length << "," << nAry.size() << std::endl;
+	for (auto a : nAry)
+	{
+		saveStream << a.n << ",";
+	}
+	saveStream << std::endl;
+	for (auto a : nAry)
+	{
+		saveStream << a.p << ",";
+	}
+	saveStream << std::endl;
+	for (auto a : nAry)
+	{
+		saveStream << a.Nd << ",";
+	}
+	saveStream << std::endl;
+	for (auto a : nAry)
+	{
+		saveStream << a.Na << ",";
+	}
+	saveStream << std::endl;
+	for (auto a : nAry)
+	{
+		saveStream << a.V << ",";
+	}
+	saveStream << std::endl;
+	for (auto a : nAry)
+	{
+		saveStream << a.Ec << ",";
+	}
+	saveStream << std::endl;
+	for (auto a : nAry)
+	{
+		saveStream << a.Ev << ",";
+	}
+	saveStream << std::endl;
+}
+
 void Device_1D::bringToEqm(double Tolerance, double exchangeScale, bool bPrintCurent)
 {
 	//Initialise total current of device
@@ -423,6 +463,29 @@ void Device_1D::bringToEqm(double Tolerance, double exchangeScale, bool bPrintCu
 		cancelCharges();
 		//OPTIONAL : Print the current found to console
 		if (bPrintCurent) { std::cout << Jtot << std::endl; }
+	}
+	return;
+}
+
+void Device_1D::bringToEqm(double Tolerance, double exchangeScale, std::ostream &fileOutput, bool bPrintConsole)
+{
+	//Initialise total current of device
+	double Jtot = 1e18;
+	//Whilst the current is higher than the current equilibrium limit
+	//Loop until Jtot is below user defined limit
+	while (Jtot > Tolerance)
+	{
+		//Find total current of charges being shifted across entire device
+		//by running the two current calculations across entire device
+		Jtot = calculateJnLEC(exchangeScale) + calculateJpLEV(exchangeScale);
+		//Rebalance voltages
+		calculateVoltages();
+		//Make sure to cancel out any charges that would annihilate each other in device
+		cancelCharges();
+		//OPTIONAL : Print the current found to console
+		if (bPrintConsole) { std::cout << Jtot << std::endl; }
+		//Print current to file
+		fileOutput << Jtot << std::endl;
 	}
 	return;
 }
