@@ -8,6 +8,8 @@
 
 Device_1D::Device_1D()
 {
+	length = 0;
+	nodeWidth = 0;
 }
 
 Device_1D::Device_1D(double Length, std::size_t noOfNodes, std::size_t transitionNode, double NdDensity, double NaDensity)
@@ -383,6 +385,58 @@ void Device_1D::cancelCharges()
 	}
 }
 
+bool Device_1D::loadState(std::string fileName)
+{
+	std::ifstream csvInStream;
+	csvInStream.open(fileName + ".csv");
+	csv2dic(csvInStream, fileName);
+	csvInStream.close();
+
+	std::ifstream dicInStream;
+	dicInStream.open(fileName + ".dic");
+	//Takes file input for number of nodes to store
+	int numberOfNodes = 0;
+	//Read the length and number of nodes from top of file
+	dicInStream >> length >> numberOfNodes;
+	//Resize the Node array to correct number
+	nAry.resize(numberOfNodes);
+	//Calculate the nodewidth
+	nodeWidth = length / nAry.size();
+	//Begin going line by line to input the different node variables
+	for (std::size_t i = 0; i < numberOfNodes; i++)
+	{
+		dicInStream >> nAry[i].n;
+	}
+	for (std::size_t i = 0; i < numberOfNodes; i++)
+	{
+		dicInStream >> nAry[i].p;
+	}
+	for (std::size_t i = 0; i < numberOfNodes; i++)
+	{
+		dicInStream >> nAry[i].Nd;
+	}
+	for (std::size_t i = 0; i < numberOfNodes; i++)
+	{
+		dicInStream >> nAry[i].Na;
+	}
+	for (std::size_t i = 0; i < numberOfNodes; i++)
+	{
+		dicInStream >> nAry[i].V;
+	}
+	for (std::size_t i = 0; i < numberOfNodes; i++)
+	{
+		dicInStream >> nAry[i].Ec;
+	}
+	for (std::size_t i = 0; i < numberOfNodes; i++)
+	{
+		dicInStream >> nAry[i].Ev;
+	}
+	dicInStream.close();
+	//TODO
+	//For now, find a way to return true or false depending on whether it loaded the file correctly
+	return true;
+}
+
 void Device_1D::calculateJnREC(double exchangeScale)
 {
 	//Loop through each of the nodes(except first)
@@ -462,8 +516,13 @@ void Device_1D::bringToEqm(double Tolerance, double exchangeScale, bool bPrintCu
 		//Make sure to cancel out any charges that would annihilate each other in device
 		cancelCharges();
 		//OPTIONAL : Print the current found to console
-		if (bPrintCurent) { std::cout << Jtot << std::endl; }
+		if (bPrintCurent) 
+		{ 
+			//Bit of a bodge, clears line and updates it with new Jtot
+			std::cout << "\r" << Jtot << "                 ";
+		}
 	}
+	if (bPrintCurent) { std::cout << "\n Equilibrium calculation finished." << std::endl; }
 	return;
 }
 
@@ -483,9 +542,41 @@ void Device_1D::bringToEqm(double Tolerance, double exchangeScale, std::ostream 
 		//Make sure to cancel out any charges that would annihilate each other in device
 		cancelCharges();
 		//OPTIONAL : Print the current found to console
-		if (bPrintConsole) { std::cout << Jtot << std::endl; }
+		if (bPrintConsole) 
+		{	//Bit of a bodge, clears line and updates it with new Jtot
+			std::cout << "\r" << Jtot << "                 ";
+		}
 		//Print current to file
 		fileOutput << Jtot << std::endl;
 	}
+	if (bPrintConsole) { std::cout << "\n Equilibrium calculation finished." << std::endl; }
 	return;
 }
+
+void Device_1D::csv2dic(std::ifstream &csvFileStream, std::string fileName)
+{
+	std::ofstream dicFileStream;
+
+	dicFileStream.open(fileName+".dic");
+
+	char currentChar;
+
+	while (csvFileStream.get(currentChar))
+	{
+		if (currentChar == ',')
+		{
+			dicFileStream << ' ';
+		}
+		else if (csvFileStream.eof())
+		{
+			dicFileStream.close();
+		}
+		else
+		{
+			dicFileStream << currentChar;
+		}
+	}
+	dicFileStream.close();
+}
+
+

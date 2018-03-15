@@ -22,6 +22,9 @@ public:
 	double nodeWidth;
 	std::vector<Node> nAry;
 	const double B = 2.4e-17;
+
+	//Initialises Blank Device
+	Device_1D();
 	
 	//EXPERIMENTAL
 	//std::vector<std::thread> threadArray;
@@ -102,6 +105,8 @@ public:
 
 	void cancelCharges();
 
+	bool loadState(std::string fileName);
+
 	//Same as normal function, but runs from R to L
 	void calculateJnREC(double exchangeScale);
 
@@ -112,7 +117,9 @@ public:
 	void fSaveDevice(std::ofstream &saveStream);
 
 private:
-	//Don't call me
-	Device_1D();	
+		
+
+	//Converts .CSV file to a .dic file
+	void csv2dic(std::ifstream &csvFileStream, std::string fileName);
 };
 
