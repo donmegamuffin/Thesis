@@ -8,7 +8,7 @@
 
 Device_1D::Device_1D()
 {
-	length = 0;
+	length = 1;	//prevents any weird div by 0 errors
 	nodeWidth = 0;
 }
 
@@ -180,143 +180,6 @@ void Device_1D::calculateVoltages()
 	}
 }
 
-void Device_1D::calculateJnL(bool bDiff, bool bDrift, int exchangeScale)
-{
-	//If both drift and diffusion are requested
-	if (bDiff&&bDrift)
-	{//Loop through each of the nodes
-		for (std::size_t i = 0; i < nAry.size(); i++)
-		{
-			//If node is at a cap position change calculation
-			if (i == 0 || i == (nAry.size() - 1))
-			{
-				//TODO Do a different calculation
-				nAry[i].n = 0;
-			}
-			else	//Do normal calculation
-			{
-				double JnL = kB*T*mu*(((nAry[i].n - nAry[i - 1].n) / nodeWidth) - (q / (2 * nodeWidth))*(nAry[i].V - nAry[i - 1].V)*(nAry[i].n + nAry[i - 1].n));
-				nAry[i].n = nAry[i].n - (JnL*exchangeScale);
-				nAry[i - 1].n = nAry[i - 1].n + (JnL*exchangeScale);
-			}
-		}
-	}
-	//Only if you want Diffusion
-	else if (bDiff)
-	{
-		for (std::size_t i = 0; i < nAry.size(); i++)
-		{
-			//If node is at a cap position change calculation
-			if (i == 0 || i == (nAry.size() - 1))
-			{
-				//TODO Do a different calculation
-				nAry[i].n = 0;
-			}
-			else	//Do normal calculation
-			{
-				double JnL = kB*T*mu*((nAry[i].n - nAry[i - 1].n) / nodeWidth);
-				nAry[i].n = nAry[i].n - (JnL*exchangeScale);
-				nAry[i - 1].n = nAry[i - 1].n + (JnL*exchangeScale);
-			}
-		}
-	}
-	//Only use Drift
-	else if (bDrift)
-	{
-		for (std::size_t i = 0; i < nAry.size(); i++)
-		{
-			//If node is at a cap position change calculation
-			if (i == 0 || i == (nAry.size() - 1))
-			{
-				//TODO Do a different calculation
-				nAry[i].n = 0;
-			}
-			else	//Do normal calculation
-			{
-				double JnL = kB*T*mu*-(q / (2 * nodeWidth))*(nAry[i].V - nAry[i - 1].V)*(nAry[i].n + nAry[i - 1].n);
-				nAry[i].n = nAry[i].n - (JnL*exchangeScale);
-				nAry[i - 1].n = nAry[i - 1].n + (JnL*exchangeScale);
-			}
-		}
-	}
-	//Incase some idiot decided to do nothing with the function by accident
-	else
-	{
-		std::cout << "calculateJnL was called with False False. Go fix.\n";
-	}
-}
-
-void Device_1D::calculateJpL(bool bDiff, bool bDrift, int exchangeScale)
-{
-	//If both drift and diffusion are requested
-	if (bDiff&&bDrift)
-	{
-		//Loop through each of the nodes
-		for (std::size_t i = 0; i < nAry.size(); i++)
-		{
-			//If node is at a cap position change calculation
-			if (i == 0 || i == (nAry.size() - 1))
-			{
-				//TODO Do a different calculation
-				nAry[i].p = 0;
-			}
-			else	//Do normal calculation
-			{
-				double JpL = kB*T*mu*(((nAry[i].p - nAry[i - 1].p) / nodeWidth) + (q / (2 * nodeWidth))*(nAry[i].V - nAry[i - 1].V)*(nAry[i].p + nAry[i - 1].p));
-				nAry[i].p = nAry[i].p - (JpL*exchangeScale);
-				nAry[i - 1].p = nAry[i - 1].p + (JpL*exchangeScale);
-			}
-		}
-	}
-	//Only if you want Diffusion
-	else if (bDiff)
-	{
-		//Loop through each of the nodes
-		for (std::size_t i = 0; i < nAry.size(); i++)
-		{
-			//If node is at a cap position change calculation
-			if (i == 0 || i == (nAry.size() - 1))
-			{
-				//TODO Do a different calculation
-				nAry[i].p = 0;
-			}
-			else	//Do normal calculation
-			{
-				double JpL = kB*T*mu*(((nAry[i].p - nAry[i - 1].p) / nodeWidth));
-				nAry[i].p = nAry[i].p - (JpL*exchangeScale);
-				nAry[i - 1].p = nAry[i - 1].p + (JpL*exchangeScale);
-			}
-		}
-	}
-	//Only use Drift
-	else if (bDrift)
-	{
-		//Loop through each of the nodes
-		for (std::size_t i = 0; i < nAry.size(); i++)
-		{
-			//If node is at a cap position change calculation
-			if (i == 0 || i == (nAry.size() - 1))
-			{
-				//TODO Do a different calculation
-				nAry[i].p = 0;
-			}
-			else	//Do normal calculation
-			{
-				double JpL = kB*T*mu*(q / (2 * nodeWidth))*(nAry[i].V - nAry[i - 1].V)*(nAry[i].p + nAry[i - 1].p);
-				nAry[i].p = nAry[i].p - (JpL*exchangeScale);
-				nAry[i - 1].p = nAry[i - 1].p + (JpL*exchangeScale);
-			}
-		}
-	}
-	//Incase some idiot decided to do nothing with the function by accident
-	//Dont use this form
-	else
-	{
-		std::cout << "calculateJpL was called with False False. Go fix.\n";
-	}
-}
-
-/*------------------------TEST---------------------------------------*/
 double Device_1D::calculateJnLEC(double exchangeScale)
 {
 	double JnL_cum = 0;	//Cumulative current from all nodes calculations
@@ -343,19 +206,6 @@ double Device_1D::calculateJpLEV(double exchangeScale)
 		JpL_cum += abs(JpL);
 	}
 	return JpL_cum;
-}
-
-//EXPERIMENTAL
-void Device_1D::calculateJnLEC_MT(double exchangeScale)
-{	//MT = Multithreaded
-	
-	//Loop through each of the nodes(except last)
-	for (std::size_t i = 1; i < nAry.size(); i++)
-	{
-		double JnL = mu*(kB*T*((nAry[i].n - nAry[i - 1].n) / nodeWidth) - (q / (2 * nodeWidth))*(nAry[i].V - nAry[i - 1].V)*(nAry[i].n + nAry[i - 1].n)) + ((nAry[i].n + nAry[i - 1].n) / 2)*((nAry[i].Ec - nAry[i - 1].Ec) / nodeWidth);
-		nAry[i].n = nAry[i].n - (JnL*exchangeScale);
-		nAry[i - 1].n = nAry[i - 1].n + (JnL*exchangeScale);
-	}
 }
 
 void Device_1D::injectCharges(double CurrentDensity, double injectionDuration)
