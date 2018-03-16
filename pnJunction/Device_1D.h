@@ -25,8 +25,9 @@ private:
 	double nodeWidth;			//Calculated length of each node
 	std::vector<Node> nAry;		//Data storage for all nodes
 	const double B = 2.4e-17;	//Rad recombine constant
-	double QE;
-	double A;
+	double QE;					//Quantum efficiency modifier for radiation out
+	double A;					//Area of device current flows through
+	double R;					//DC resistance of device (approx)
 
 public:
 //Printing functions
@@ -53,6 +54,12 @@ public:
 	@param exchangeScale - aproximation scaling modifier. Higher = faster but less precise.
 	*/
 	double calculateJpLEV(double exchangeScale);
+	/*
+	Does full current and charge density exchange for HOLES
+	for all nodes in the device from RIGHT to LEFT
+	@param exchangeScale - aproximation scaling modifier. Higher = faster but less precise.
+	*/
+	double calculateJpREV(double exchangeScale);
 
 //Equilibrium Methods
 	/* Runs current calculations on device until combined current is less than the tolerance
@@ -105,11 +112,18 @@ public:
 	*/
 	void fSaveDevice(std::ofstream &saveStream);
 
+	/*	Runs a charge injection simulation with voltage ramp up/down similar to experiment
+		@param fileName:	The name of the file with all the radiation points to be printed
+		@param t_trans:		The time (in seconds) of when it goes from ramp up to ramp down
+		@param t_step:		The time step to be simulating at. Lower = more granular sim
+	*/
+	void simulateDevice(double t_trans, double t_step, std::string radOutFileName);
+
 private:
 	//Converts .CSV file to an internal .dic file
 	void csv2dic(std::ifstream &csvFileStream, std::string fileName);
 
 	//Effectively Calculates the voltage tent map [Copied from my cap sim]
-	double calcV(double time, double transition_time);
+	double inputV(double time, double transition_time);
 };
 

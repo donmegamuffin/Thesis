@@ -41,7 +41,7 @@ Device_1D::Device_1D(std::ifstream &instream)
 	//Takes file input for number of nodes to store
 	int numberOfNodes = 0;
 	//Read the length and number of nodes from top of file
-	instream >> length >> numberOfNodes >> A >> QE;
+	instream >> length >> numberOfNodes >> A >> QE >> R;
 	//Resize the Node array to correct number
 	nAry.resize(numberOfNodes);
 	//Calculate the nodewidth
@@ -211,9 +211,23 @@ double Device_1D::calculateJpLEV(double exchangeScale)
 	return JpL_cum;
 }
 
+double Device_1D::calculateJpREV(double exchangeScale)
+{
+	double JpL_cum = 0;	//Cumulative current from all nodes calculations
+						//Loop through each of the nodes(except first)
+	for (std::size_t i = nAry.size() - 1; i > 0; i--)
+	{
+		double JpL = mu * (kB*T*((nAry[i].p - nAry[i - 1].p) / nodeWidth) + (q / (2 * nodeWidth))*(nAry[i].V - nAry[i - 1].V)*(nAry[i].p + nAry[i - 1].p)) + ((nAry[i].p + nAry[i - 1].p) / 2)*((nAry[i].Ev - nAry[i - 1].Ev) / nodeWidth);
+		nAry[i].p = nAry[i].p - (JpL*exchangeScale);
+		nAry[i - 1].p = nAry[i - 1].p + (JpL*exchangeScale);
+		JpL_cum += abs(JpL);
+	}
+	return JpL_cum;
+}
+
 void Device_1D::injectCharges(double CurrentDensity, double injectionDuration)
 {
-	//Assumes p-n style device. Inject p in left, n on right.
+	//Assumes p-n style device. Inject n in right, p on left.
 	nAry[0].n += (CurrentDensity*injectionDuration);
 	nAry[nAry.size() - 1].p += (CurrentDensity*injectionDuration);
 	return;
@@ -250,7 +264,7 @@ bool Device_1D::loadState(std::string fileName)
 	//Takes file input for number of nodes to store
 	int numberOfNodes = 0;
 	//Read the length and number of nodes from top of file
-	dicInStream >> length >> numberOfNodes;
+	dicInStream >> length >> numberOfNodes >> QE >> A >> R;
 	//Resize the Node array to correct number
 	nAry.resize(numberOfNodes);
 	//Calculate the nodewidth
@@ -315,7 +329,7 @@ double Device_1D::calcRadRecombine(double timeScale)
 
 void Device_1D::fSaveDevice(std::ofstream & saveStream)
 {
-	saveStream << length << "," << nAry.size() << "," << QE << "," << A << std::endl;
+	saveStream << length << "," << nAry.size() << "," << QE << "," << A << "," << R << std::endl;
 	for (auto a : nAry)
 	{
 		saveStream << a.n << ",";
@@ -406,6 +420,31 @@ void Device_1D::bringToEqm(double Tolerance, double exchangeScale, std::ostream 
 	return;
 }
 
+void Device_1D::simulateDevice(double t_trans, double t_step, std::string radOutFileName)
+{
+	//Open file with designated name
+	std::ofstream radOutFile;
+	radOutFile.open(radOutFileName + ".csv");
+	double t_now = 0;
+	double J = 0;
+	double inV = 0;
+	radOutFile << "t,V,Rrad\n";
+	for (int i = 0; i < 500; i++)
+	{
+		t_now = i * t_step;
+		inV = inputV(t_now, t_trans);
+		J = inV / (A * R);
+		injectCharges(J, t_step);
+		//Assuming P - N device
+		//In p in from left, n from right
+		calculateJpREV(t_step);
+		calculateJnLEC(t_step);
+		radOutFile << t_now << ","<< inV << "," << calcRadRecombine(t_step) << std::endl;
+	}
+	//Make sure to close file after doing calculations
+	radOutFile.close();
+}
+
 void Device_1D::csv2dic(std::ifstream &csvFileStream, std::string fileName)
 {
 	std::ofstream dicFileStream;
@@ -433,7 +472,7 @@ void Device_1D::csv2dic(std::ifstream &csvFileStream, std::string fileName)
 }
 
 //Effectively Calculates the voltage tent map [Copied from my cap sim]
-double Device_1D::calcV(double time, double transition_time)
+double Device_1D::inputV(double time, double transition_time)
 {
 	double Vramp = 4e9;
 	if (time < transition_time)
