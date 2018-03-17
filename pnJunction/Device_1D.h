@@ -21,12 +21,12 @@ public:
 	~Device_1D();
 	
 private:
-	double length;				//Length of device in m
-	double nodeWidth;			//Calculated length of each node
+	double length;				//Length of device in cm
+	double nodeWidth;			//Calculated length of each node in cm
 	std::vector<Node> nAry;		//Data storage for all nodes
-	const double B = 2.4e-17;	//Rad recombine constant
+	const double B = 2.4e-11;	//Rad recombine constant cm^3 s^-1
 	double QE;					//Quantum efficiency modifier for radiation out
-	double A;					//Area of device current flows through
+	double A;					//Area of device current flows through cm^2
 	double R;					//DC resistance of device (approx)
 
 public:

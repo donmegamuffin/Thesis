@@ -12,10 +12,10 @@ public:
 
 	Node();				//Default constructor creates 0'd out node
 	~Node();
-	double n;			//number of -ve charge carriers
-	double p;			//number of +ve charge carriers
-	double Nd;			//number of Donor Ions	(+ve)
-	double Na;			//number of Acceptor Ions	(-ve)
+	double n;			//density of -ve charge carriers per cm^-3
+	double p;			//density of +ve charge carriers per cm^-3
+	double Nd;			//density of Donor Ions	(+ve) per cm^-3
+	double Na;			//density of Acceptor Ions	(-ve) per cm^-3
 	double V;			//Potential at that node
 	double Ec;			//Conduction Band Energy
 	double Ev;			//Valence Band Energy

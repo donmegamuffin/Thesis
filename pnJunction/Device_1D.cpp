@@ -182,8 +182,8 @@ double Device_1D::calculateJnLEC(double exchangeScale)
 		double dV = (nAry[i].V - nAry[i - 1].V) / nodeWidth;
 		double dEc = (nAry[i].Ec - nAry[i - 1].Ev) / nodeWidth;
 		double n = (nAry[i].n + nAry[i - 1].n) / 2;
-		//double JnL = (-q * mu*n*dV) - (mu*n*dEc) + (q*D*dn);
-		double JnL = mu*(kB*T*((nAry[i].n - nAry[i - 1].n) / nodeWidth) - (q / (2 * nodeWidth))*(nAry[i].V - nAry[i - 1].V)*(nAry[i].n + nAry[i - 1].n) ) + ((nAry[i].n + nAry[i-1].n)/2)*((nAry[i].Ec-nAry[i-1].Ec)/nodeWidth);	//o
+		double JnL = (-q * mu*n*dV) - (mu*n*dEc) + (q*D*dn);
+		//double JnL = mu*(kB*T*((nAry[i].n - nAry[i - 1].n) / nodeWidth) - (q / (2 * nodeWidth))*(nAry[i].V - nAry[i - 1].V)*(nAry[i].n + nAry[i - 1].n) ) + ((nAry[i].n + nAry[i-1].n)/2)*((nAry[i].Ec-nAry[i-1].Ec)/nodeWidth);	//o
 		nAry[i].n = nAry[i].n - (JnL*exchangeScale);
 		nAry[i - 1].n = nAry[i - 1].n + (JnL*exchangeScale);
 		JnL_cum += abs(JnL);
@@ -201,8 +201,8 @@ double Device_1D::calculateJnREC(double exchangeScale)
 		double dV = (nAry[i].V - nAry[i - 1].V) / nodeWidth;
 		double dEc = (nAry[i].Ec - nAry[i - 1].Ev) / nodeWidth;
 		double n = (nAry[i].n + nAry[i - 1].n) / 2;
-		//double JnL = (-q * mu*n*dV) - (mu*n*dEc) + (q*D*dn);
-		double JnL = mu*(kB*T*((nAry[i].n - nAry[i - 1].n) / nodeWidth) - (q / (2 * nodeWidth))*(nAry[i].V - nAry[i - 1].V)*(nAry[i].n + nAry[i - 1].n)) + ((nAry[i].n + nAry[i - 1].n) / 2)*((nAry[i].Ec - nAry[i - 1].Ec) / nodeWidth); //o
+		double JnL = (-q * mu*n*dV) - (mu*n*dEc) + (q*D*dn);
+		//double JnL = mu*(kB*T*((nAry[i].n - nAry[i - 1].n) / nodeWidth) - (q / (2 * nodeWidth))*(nAry[i].V - nAry[i - 1].V)*(nAry[i].n + nAry[i - 1].n)) + ((nAry[i].n + nAry[i - 1].n) / 2)*((nAry[i].Ec - nAry[i - 1].Ec) / nodeWidth); //o
 		nAry[i].n = nAry[i].n - (JnL*exchangeScale);
 		nAry[i - 1].n = nAry[i - 1].n + (JnL*exchangeScale);
 		JnL_cum += abs(JnL);
@@ -220,8 +220,8 @@ double Device_1D::calculateJpLEV(double exchangeScale)
 		double dV = (nAry[i].V - nAry[i - 1].V) / nodeWidth;
 		double dEv = (nAry[i].Ev - nAry[i - 1].Ev) / nodeWidth;
 		double p = (nAry[i].p + nAry[i - 1].p) / 2;
-		//double JpL = (q * mu*p*dV) - (mu*p*dEv) + (q*D*dp);
-		double JpL = mu*(kB*T*((nAry[i].p - nAry[i - 1].p) / nodeWidth) + (q / (2 * nodeWidth))*(nAry[i].V - nAry[i - 1].V)*(nAry[i].p + nAry[i - 1].p)) + ((nAry[i].p + nAry[i - 1].p) / 2)*((nAry[i].Ev - nAry[i-1].Ev) / nodeWidth); //o
+		double JpL = (q * mu*p*dV) - (mu*p*dEv) + (q*D*dp);
+		//double JpL = mu*(kB*T*((nAry[i].p - nAry[i - 1].p) / nodeWidth) + (q / (2 * nodeWidth))*(nAry[i].V - nAry[i - 1].V)*(nAry[i].p + nAry[i - 1].p)) + ((nAry[i].p + nAry[i - 1].p) / 2)*((nAry[i].Ev - nAry[i-1].Ev) / nodeWidth); //o
 		nAry[i].p = nAry[i].p - (JpL*exchangeScale);
 		nAry[i - 1].p = nAry[i - 1].p + (JpL*exchangeScale);
 		JpL_cum += abs(JpL);
@@ -239,8 +239,8 @@ double Device_1D::calculateJpREV(double exchangeScale)
 		double dV = (nAry[i].V - nAry[i - 1].V) / nodeWidth;
 		double dEv = (nAry[i].Ev - nAry[i - 1].Ev) / nodeWidth;
 		double p = (nAry[i].p + nAry[i - 1].p) / 2;
-		//double JpL = (q * mu*p*dV) - (mu*p*dEv) + (q*D*dp);
-		double JpL = mu * (kB*T*((nAry[i].p - nAry[i - 1].p) / nodeWidth) + (q / (2 * nodeWidth))*(nAry[i].V - nAry[i - 1].V)*(nAry[i].p + nAry[i - 1].p)) + ((nAry[i].p + nAry[i - 1].p) / 2)*((nAry[i].Ev - nAry[i - 1].Ev) / nodeWidth); //o
+		double JpL = (q * mu*p*dV) - (mu*p*dEv) + (q*D*dp);
+		//double JpL = mu * (kB*T*((nAry[i].p - nAry[i - 1].p) / nodeWidth) + (q / (2 * nodeWidth))*(nAry[i].V - nAry[i - 1].V)*(nAry[i].p + nAry[i - 1].p)) + ((nAry[i].p + nAry[i - 1].p) / 2)*((nAry[i].Ev - nAry[i - 1].Ev) / nodeWidth); //o
 		nAry[i].p = nAry[i].p - (JpL*exchangeScale);
 		nAry[i - 1].p = nAry[i - 1].p + (JpL*exchangeScale);
 		JpL_cum += abs(JpL);
@@ -268,8 +268,8 @@ void Device_1D::calculateVoltages()
 			double a2 = pow(nodeWidth, 2);
 			double C = (q*a2) / e_0;
 			double netCharge = nAry[i].p + nAry[i].Nd - nAry[i].n - nAry[i].Na;
-			//nAry[i].V = 0.5*(C*(netCharge)+nAry[i - 1].V + nAry[i + 1].V);
-			nAry[i].V = pow(nodeWidth, 2)*((q / (2 * e_0))*(nAry[i].p + nAry[i].Nd - nAry[i].n - nAry[i].Na) + nAry[i + 1].V + nAry[i - 1].V); //O
+			nAry[i].V = 0.5*(C*(netCharge)+nAry[i - 1].V + nAry[i + 1].V);
+			//nAry[i].V = pow(nodeWidth, 2)*((q / (2 * e_0))*(nAry[i].p + nAry[i].Nd - nAry[i].n - nAry[i].Na) + nAry[i + 1].V + nAry[i - 1].V); //O
 		}
 	}
 }
