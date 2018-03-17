@@ -43,21 +43,27 @@ public:
 //Charge transfer functions
 	//Full Jn/Jp calculations
 	/*
-	Does full current and charge density exchange for ELECTRONS
-	for all nodes in the device from Left to Right
-	@param exchangeScale - aproximation scaling modifier. Higher = faster but less precise.
+		Does full current and charge density exchange for ELECTRONS
+		for all nodes in the device from Left to Right
+		@param exchangeScale - aproximation scaling modifier. Higher = faster but less precise.
 	*/
 	double calculateJnLEC(double exchangeScale);
+	/*	
+		Does full current and charge density exchange for HOLES
+		for all nodes in the device from RIGHT to LEFT
+		@param exchangeScale - aproximation scaling modifier.Higher = faster but less precise.
+	*/
+	double calculateJnREC(double exchangeScale);
 	/*
-	Does full current and charge density exchange for HOLES
-	for all nodes in the device from Left to Right
-	@param exchangeScale - aproximation scaling modifier. Higher = faster but less precise.
+		Does full current and charge density exchange for HOLES
+		for all nodes in the device from Left to Right
+		@param exchangeScale - aproximation scaling modifier. Higher = faster but less precise.
 	*/
 	double calculateJpLEV(double exchangeScale);
 	/*
-	Does full current and charge density exchange for HOLES
-	for all nodes in the device from RIGHT to LEFT
-	@param exchangeScale - aproximation scaling modifier. Higher = faster but less precise.
+		Does full current and charge density exchange for HOLES
+		for all nodes in the device from RIGHT to LEFT
+		@param exchangeScale - aproximation scaling modifier. Higher = faster but less precise.
 	*/
 	double calculateJpREV(double exchangeScale);
 
@@ -95,10 +101,7 @@ public:
 	*/
 	bool loadState(std::string fileName);
 
-	/* SEE calculateJnLEC FOR DETAILS
-		Same as normal function, but runs from R to L
-	*/
-	void calculateJnREC(double exchangeScale);
+
 
 	/* Calculates equation R = Bnp on each node
 		@param timescale: Over what duration this is happening
