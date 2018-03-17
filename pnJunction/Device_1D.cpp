@@ -396,14 +396,16 @@ void Device_1D::bringToEqm(double Tolerance, double exchangeScale, bool bPrintCu
 void Device_1D::bringToEqm(double Tolerance, double exchangeScale, std::ostream &fileOutput, bool bPrintConsole)
 {
 	//Initialise total current of device
-	double Jtot = 1e18;
+	double Jtot = 1e13;
+	double J_prev = 1e8;
 	//Whilst the current is higher than the current equilibrium limit
 	//Loop until Jtot is below user defined limit
-	while (Jtot > Tolerance)
+	while (Jtot > Tolerance && abs(Jtot - J_prev)>(0.1*Tolerance))
 	{
+		J_prev = Jtot;	//So the program won't enter endless loop unable to get below tolerance if grinds to convergance
 		//Find total current of charges being shifted across entire device
 		//by running the two current calculations across entire device
-		Jtot = calculateJnLEC(exchangeScale) + calculateJpLEV(exchangeScale);
+		Jtot = calculateJnREC(exchangeScale) + calculateJpLEV(exchangeScale);
 		//Rebalance voltages
 		calculateVoltages();
 		//Make sure to cancel out any charges that would annihilate each other in device
