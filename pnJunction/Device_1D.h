@@ -95,7 +95,6 @@ public:
 
 
 	/* Loads all device stats from a given filename
-	___________________________________________________________________
 		@param fileName: Input the filename (without .csv) to be loaded
 		@return bool : Returns true if successful
 	*/
@@ -122,11 +121,27 @@ public:
 	*/
 	void simulateDevice(double t_trans, double t_step, std::string radOutFileName);
 
+	//full simulation for finding FWHM and Rrad_cum data
+	void fullSim(std::string eqmFileName, double timeStep, double transStep, double transMax);
+
 private:
+	/*__________________________Various helper/Tool functions___________________________*/
+
 	//Converts .CSV file to an internal .dic file
 	void csv2dic(std::ifstream &csvFileStream, std::string fileName);
 
 	//Effectively Calculates the voltage tent map [Copied from my cap sim]
 	double inputV(double time, double transition_time);
+
+	//basic simulation All-in-one function for easy calling
+	void simulateDevice_pn(double& outFWHM, double& outRrad, double t_step, double t_trans);
+	
+	//Taken from Cap(bucket) sim
+	int findPeakBin(std::vector<double> RadVector);
+	int FWHMfindFirstBinBelow(std::vector<double> RadVector, int PeakIndex);
+	int FWHMfindFirstBinAbove(std::vector<double> RadVector, int PeakIndex);
+	double GetRadFWHM(std::vector<double> RadVector, std::vector<double> TimeVector);
+
+
 };
 

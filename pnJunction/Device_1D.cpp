@@ -79,6 +79,7 @@ Device_1D::~Device_1D()
 }
 
 //-----------------------------FILE SAVE & LOAD ----------------------
+
 bool Device_1D::loadState(std::string fileName)
 {
 	std::ifstream csvInStream;
@@ -172,6 +173,7 @@ void Device_1D::fSaveDevice(std::ofstream & saveStream)
 }
 
 //-----------J current calculations ------------------------------------------------------
+
 double Device_1D::calculateJnLEC(double exchangeScale)
 {
 	double JnL_cum = 0;	//Cumulative current from all nodes calculations
@@ -294,6 +296,7 @@ void Device_1D::cancelCharges()
 }
 
 //----------------------SIMULATION STUFF-------------------------------------------------
+
 void Device_1D::injectCharges(double CurrentDensity, double injectionDuration)
 {
 	//Assumes p-n style device. Inject n in right, p on left.
@@ -321,6 +324,39 @@ double Device_1D::inputV(double time, double transition_time)
 		return Vramp * time;
 	else
 		return Vramp * ((2 * transition_time) - time);
+}
+
+void Device_1D::simulateDevice_pn(double & outFWHM, double & outRrad, double t_step, double t_trans)
+{
+	double t_now = 0;	//current device simulation time
+	std::vector<double> t_Vec;	//Stores all the times
+	double Rrad_now;
+	std::vector<double> Rrad_Vec;	//Current device radiation
+	double Rrad_cum = 0;	//Cumulative radiation
+	double inV = 0;			//Input voltage
+	double J = 0;			//J
+
+	//Main function loop
+	do
+	{
+		t_now += t_step;
+		t_Vec.emplace_back(t_now);
+
+		inV = inputV(t_now, t_trans);
+		J = inV / (A * R);
+
+		injectCharges(J, t_step);
+		calculateVoltages();
+		calculateJpREV(t_step);
+		calculateJnLEC(t_step);
+
+		Rrad_now = calcRadRecombine(t_step);
+		Rrad_Vec.emplace_back(Rrad_now);
+		Rrad_cum += Rrad_now;
+	} while (Rrad_now>0);
+
+	outFWHM = GetRadFWHM(Rrad_Vec, t_Vec);
+	outRrad = Rrad_cum;
 }
 
 void Device_1D::simulateDevice(double t_trans, double t_step, std::string radOutFileName)
@@ -422,7 +458,54 @@ void Device_1D::bringToEqm(double Tolerance, double exchangeScale, std::ostream 
 	return;
 }
 
+void Device_1D::fullSim(std::string eqmFileName, double timeStep, double transStep, double transMax)
+{
+	//Simulation Data arrays for output
+	std::vector<double> t_trans_Vec;
+	std::vector<double> FWHM_Vec;
+	std::vector<double> Rcum_Vec;
+
+	double FWHM_now = 0;	//Holds the loop FWHM
+	double Rcum_now = 0;	//Holds the loop Rcum
+	
+	//Open filestream for printing results
+	std::ofstream resultsFile;
+	resultsFile.open(eqmFileName + "_Rad_results.csv",'w');
+
+	for (int i = 0; i*transStep < transMax; i++)
+	{
+		//Set up device
+		loadState(eqmFileName);
+
+		//Add the transition time to trans vector
+		t_trans_Vec.emplace_back(i*transStep);
+
+		simulateDevice_pn(FWHM_now, Rcum_now, timeStep, i*transStep);
+
+		FWHM_Vec.emplace_back(FWHM_now);
+		Rcum_Vec.emplace_back(Rcum_now);
+	}
+	//Print Results to file
+	for (auto a : t_trans_Vec)
+	{
+		resultsFile << a << ",";
+	}
+	resultsFile << std::endl;
+	for (auto a : FWHM_Vec)
+	{
+		resultsFile << a << ",";
+	}
+	resultsFile << std::endl;
+	for (auto a : Rcum_Vec)
+	{
+		resultsFile << a << ",";
+	}
+	resultsFile << std::endl;
+
+	resultsFile.close();
+}
 //----------------------MISC TOOLS STUFF-------------------------------------------------
+
 void Device_1D::PrintDeviceData(bool bPrintHeader)
 {
 	/*Prints to console headings in format: n1, n2..., until V[end]
@@ -526,4 +609,67 @@ void Device_1D::csv2dic(std::ifstream &csvFileStream, std::string fileName)
 		}
 	}
 	dicFileStream.close();
+}
+
+//Goes through all the curve datapoints to retrieve highest value one
+int Device_1D::findPeakBin(std::vector<double> RadVector)
+{
+	double PeakValue = 0;
+	int PeakValueAssociatedIndex = 0;
+	for (std::size_t i = 0; i < RadVector.size(); i++)
+	{
+		if (RadVector[i] > PeakValue)
+		{
+			PeakValue = RadVector[i];
+			PeakValueAssociatedIndex = i;
+		}
+	}
+	return PeakValueAssociatedIndex;
+}
+//Goes through all datapoints from peak backwards to retrieve first bin below half Peak
+int Device_1D::FWHMfindFirstBinBelow(std::vector<double> RadVector, int PeakIndex)
+{
+	int Index = 0;
+	for (std::size_t i = PeakIndex; i >= 0; i--)
+	{
+		if (RadVector[i] < (RadVector[PeakIndex] / 2))
+		{
+			Index = i;
+			break;
+		}
+	}
+	return Index;
+}
+
+
+//Goes through all datapoints from peak forwards to retrieve first bin below half Peak
+int Device_1D::FWHMfindFirstBinAbove(std::vector<double> RadVector, int PeakIndex)
+{
+	int Index = 0;
+	for (std::size_t i = PeakIndex; i < RadVector.size(); i++)
+	{
+		if (RadVector[i] < (RadVector[PeakIndex] / 2))
+		{
+			Index = i;
+			break;
+		}
+	}
+	return Index;
+}
+
+/*Takes in Vector of radiation values, and associated time vector.
+* finds FWHM of radiation curve, and then applies that to associated
+* time vector to find how much time elapsed between these two points.
+* Returns duration of the Full width half maximum in whatever unit time vector is in.
+*/
+double Device_1D::GetRadFWHM(std::vector<double> RadVector, std::vector<double> TimeVector)
+{
+	//Get the peak of the curve
+	int PeakBin = findPeakBin(RadVector);
+	//Get the first bin below half max
+	int LowBin = FWHMfindFirstBinBelow(RadVector, PeakBin);
+	//Get the first bin after half max
+	int HighBin = FWHMfindFirstBinAbove(RadVector, PeakBin);
+	//Return the difference in time between the associated time vector bins
+	return (TimeVector[HighBin] - TimeVector[LowBin]);
 }
