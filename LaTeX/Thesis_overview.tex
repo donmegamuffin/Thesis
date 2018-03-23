@@ -8,14 +8,9 @@
 \usepackage{listings}
 \usepackage{cite}
 \usepackage{pdfpages}
-\usepackage[font=it]{caption}
-\usepackage{algorithm2e}
-
-%\usepackage[a4paper, margin=1.5in]{geometry}
+%\usepackage[a4paper, margin=1.25in]{geometry}
 
 \RaggedRightParindent = 24pt
-\linespread{1.3}
-
 
 %set code style
 \lstdefinestyle{default}
@@ -28,9 +23,6 @@
 	showstringspaces=false,
 	captionpos = b
 }
-%Set Algorithm style
-\RestyleAlgo{boxed}
-\LinesNumbered
 \lstset{style=default}
 %opening
 
@@ -57,7 +49,6 @@ At the \\
 \lstlistoflistings
 \listoffigures
 \listoftables
-\listofalgorithms
 \newpage
 
 \section*{Declaration}
@@ -97,146 +88,20 @@ In this section will outline the \textbf{Windisch} paper, and it's modelling of 
 \subsection{Brailovsky \& Mitin}
 Discuss the analytical solution they provide, the massive reverse current predicted, and their neglection of drift current in their analytical model, but how this massive reverse current might actually be the source of the fast-switching of the LED, faster than expected.
 \section{Method}
-In order to explore the behaviour of the light emitting diode at short time-scales, two simulations were created to explore how different interpretations of the device would affect the results: A "macroscopic" simulation treating the device as a singular object, and a second "microscopic" simulation that took into account of internals of the device. The theoretical foundation for carrier transport in both device simulations was the "Drift-Diffusion" model due to its common usage, and simpler implementation than competing models, such as the Semi-classical Boltzmann Transport Equations that has its basis in the scattering of classical point-like holes and electrons from one set of phase-space coordinates to another.\cite{NSD}[p70-6] \\
-The goal of both simulations was to produce plots of the full width half maximum ($\sigma_{FWHM}$) as a function of the number of photons in the pulse, to compare with the real device output.\\
-Experimentally, voltage across the diode was ramped up and down over the period of several nanoseconds, with the forwards bias injecting charges, and the reverse bias pulling any remaining charges that hadn't combined, out of the device. In both models, to match the experimental conditions, the applied voltage to the diode was modelled as a tent map with the equations:
+In this section, the discussion of the methods used to model the LED will be disclosed. The first section will describe the general principle and concepts of how the LED was to be modelled, with the second half detailing each step of how the code was produced from a total breakdown of those concepts. \\ For example: The breakdown of how the Electronic potentials were determined at each point on the 1D device, how the second order differential can be approximated as below (from Taylor expansion):
 \begin{eqnarray}
-	V(t) = \begin{cases}
-	\alpha t &t < t_{trans}\\
-	\alpha(2t_{trans} - t) &t \geq t_{trans}\\
-	\end{cases}
+	&V \propto \nabla^2 n = \dfrac{\partial^2n}{\partial x^2}\Big|_{\lim\limits_{1D}} \\
+	\hookrightarrow &\dfrac{d^2n}{dx^2} \approx \dfrac{n_{i-1} - 2n_i + n_{i+1}}{(\Delta x)^2}
 \end{eqnarray}
-where $V$ is the bias voltage, $t$ is the time, $t_{trans}$ is the transition time from voltage ramp up to voltage ramp down, and $\alpha$ is the voltage ramp scale (found experimentally to be $4Vns^{-1}$). This is an approximation to the experiment as it is not possible to switch instantly from forwards to backwards, with a more realistic model expecting some rounding to the graph graph during switching on, and switching from forwards to backwards. 
-\begin{figure}[t]
-	\hrule
-	\centering
-	\includegraphics[scale=0.12]{Figures/V_tent}
-	\caption{\label{graph:V_tent}Graph of the approximate shape of the voltage ramp up and down used experimentally.}
-	\hrule
-\end{figure}
-\subsection{"Macroscopic" Model}
-\subsubsection{Conceptual Overview}
-\begin{figure}[t]
-	\hrule
-	\centering
-	\includegraphics[scale=0.12]{Figures/Bucket_overview}
-	\caption{\label{fig:bucketOverview}This figure displays the concept behind the macroscopic model where after time, $t=0$, electrons and holes ($n^-$ and $p^+$ respectively) are injected by currents $J_n$ and $J_p$ until the switch time, where upon the currents are reversed until all the charges have either combined to create photons ($\gamma$), or have been removed.}
-	\hrule
-\end{figure}
-In this simulation, the device was modelled as a single, complete object where charges would be injected, and photons ejected as a result of holes and electrons in the device combining (fig.\ref{fig:bucketOverview}). This interpretation would be similar to treating the device to that of a leaky capacitor under Direct Current operation. This is a not-entirely unrealistic as "real" LEDs do have some small level of capacitance in the form of charge storage and  depletion layer capacitance.\textbf{[CITE: VALEDAR,p30]} This model also means that opposite charges can interact immediately once inside, as the device is treated as so small that the charges are injected in the same place.\\
-\subsubsection{Calculating number of charges}
-The core calculation for number of charges in the device was done in a discrete time-step manner thus:
-\begin{eqnarray}
-&n(t) &= n(t-1) + \dfrac{dn}{dt}\Big|_{n=n(t)} \\
-\hookrightarrow &n(t) &= n(t-1) + n_J(t) - n_R(t) 
-\end{eqnarray}
-where $n(t)$ is the number of charges at time t, $n_J(t)$ is number of charges injected at time t, and $n_R(t)$ is the number of charges recombined at time t, with the boundary conditions, $n(0), n(t_{end}) = 0$ with the approximation that Thermal Generation and Recombination were negligible.\\
-As both negative and positive charges would be injected at the same rate in this model, it is convenient to work in just one of them (in this case, negative) to simplify certain calculations.\\
-To calculate the number of injected charges, the approximation was taken that the LED itself was an Ohmic device, with resistance of $5\Omega$, and using Ohms law:
-\begin{eqnarray}
-	&I =& \dfrac{V}{R} =  \dfrac{q n_J}{t}\\
-\hookrightarrow	&n_J =& \dfrac{V}{qR}t
-\end{eqnarray}
-where $V$ is the external applied Voltage, $R$ is the resistance, $q$ is the charge on the electron, and $t$ is the amount of time the current is being applied for.\\
-The number of charges lost to Radiative Recombination can be found from the  Radiative recombination rate equation given by:\cite{NSD}[p289,306]\cite{Sze}[p614]
-\begin{eqnarray}
-&R_{rad} =& Bnp\\
-\hookrightarrow &R_{rad} =& Bn^2\Big|_{p=n} = n_R 
-\end{eqnarray}
-where $B$ is the bulk recombination rate constant.\\
-\subsubsection{Simulation Algorithms}
-The method for finding the number of photons, and FWHM of the associated pulse, was done by running the device simulation over a range of transition times, incrementing the transition time by a small step each loop:\\
-\begin{algorithm}[H]
-	Create arrays to store FWHM and Number of photons\; 
-	\For{$t_{trans} = 0$ to $t_{trans-max}$}
-	{
-		Carry out the simulation at $t_{trans}$\;
-		Save the resulting FWHM and Number of photons to arrays\;
-	}
-	Print the arrays to file\;
-	\caption{Macroscopic outer loop \label{alg:Mac:outer}}
-\end{algorithm}
-\bigskip
-In the program, the size of the transition step, the maximum transition step, and the simulation step can all be determined at run-time via console input at the start.\\
-The algorithm for the nested simulation step of the outer loop is defined by Algorithm \ref{alg:Mac:inner}.\\
-\begin{algorithm}[H]
-	Create array for number of photons and current time\;
-	Create Cumulative Radiation variable and set to 0\;
-	\While{$n \geq 0$}
-	{
-		Increment simulation at $t$ by $t_step$\;
-		Add time onto end of the time array\;
-		Find V at $t$ from tent map\;
-		Find $n_J$ from V \;
-		Add $n_J$ to $n$\;
-		Find $n_R$ (and hence number of photons)\;
-		Take $n_R$ from $n$\;
-		Add $n_R$ onto end of photon array\;
-		Add $n_R$ to cumulative photons.\;
-	}
-	Use arrays to find FWHM\;
-	Send total photons and FWHM to outer loop.\;
-	\caption{Macroscopic Inner simulation loop \label{alg:Mac:inner}}
-\end{algorithm}
-\bigskip
-From both of these algorithms, it's clear that the smaller the time step for both the transition time and inner simulation time, the higher the resolution of the data, so generally, the step for the simulation was on the order of $10^{-3}$ times the transition time.\\
-To find the FWHM of the pulse, Algorithm \ref{alg:Mac:FWHM} was used. From this method, the error on the FWHM is no more than the width of two bins.\\
-\begin{algorithm}[H]
-	Find peak photon count bin in the photon array\;
-	Find first bin to fall below half this value before and after peak bin\;
-	Use bin numbers to find associated times in the time array\;
-	Subtract the time from the after-peak bin from the before-peak bin\;
-\caption{Finding photon Pulse Full Width Half Maximum \label{alg:Mac:FWHM}}
-\end{algorithm}
-\bigskip
-The resulting data generated by this simulation was then outputted to a .csv file where it could be analysed.
+\subsection{Charge carrier transport depth}
+With application of an external potential upon an LED, charges will flow from the attached wires into the device with a set velocity. This velocity can be used to work out, approximately, how far charges within the device will travel, given a set amount of time. The velocity for electrons is given by the semi empirical formula\cite{NSD}(p76):
+\begin{equation}
+v_n(E) = \dfrac{[\mu_{n0}E+v_{nsat}(\frac{E}{E_{cr}})^{\beta_1}]}{[1+(\frac{E}{E_{cr}})^{\beta_1}+a(\frac{E}{E_{cr}})^{\beta_2}]}
+\end{equation}
+where $E$ is the applied electric field upon bulk, $E_{cr}$ is the critical field, $v_{nsat}$ is the saturation velocity, and $a, \beta_1, \beta_2$ are fitting parameters. \\ 
+By applying the parameters of the experiment to the equation, it can be found that the charges from the external source don't penetrate more than $5\mu m$ into the device, not far enough to reach the pn junction. This suggests the light emitted during this time frame is entirely from charges directly adjacent to the junction within the device, and hence the large current is a result of these. 
 
-\subsection{"Microscopic" Model}
-\subsubsection{Conceptual Overview}
-This model was produced to compare the results with the Macroscopic interpretation of the device. It centred around numerically solving the charge Continuity Equations through calculating both the Drift-Diffusion and Poisson's equations:\cite{Frensley}[p21]
-\begin{eqnarray}
-	&J_n = -q\mu_n n\nabla V + \mu_n n \nabla E_c + q D_n \nabla n\\
-	&J_p = -q\mu_p p\nabla V + \mu_p p \nabla E_v - q D_p \nabla p\\
-	&\nabla\cdot\vec{D} = \rho
-\end{eqnarray}
-where the first and second equations are the drift-diffusion equations with the addition the second terms to account for spacial variation of band structure, and the third equation is Gauss' law.\\ 
-This was done by dividing the device into segments. A visual representation can be found in Figure \ref{fig:Mic:Segment}.\\
-\begin{figure}
-	\centering
-	\includegraphics[scale=0.15]{Figures/Segmented}
-	\caption{\label{fig:Mic:Segment}Visual representation of Microscopic model's segmented device. $N_x$ is node at position x, $a$ is the node width, and $J_{n/p}$ is the current density between two nodes for either electrons($n$), or holes($p$).}
-	\hrule
-\end{figure}
-Each "node" along the device has a set width, $a$, and contain several variables and constants: The charge densities for electrons and holes ($n$ and $p$ respectively), and the potential at that point $V$ being the variables, and with constants determining doping of acceptor atoms $N_a$, doping of donor atoms $N_d$, and the Conduction and valence band relative energies, $E_c$ and $E_v$ respectively. \\
-The device would be constructed as a "string" of these Nodes, with a set length, and area perpendicular to the current, which would limit it strictly to cuboid shaped devices. \\
-Due the increased complexity of this model, there are more initial conditions to be considered, such as how many nodes there are, the specifications of each of the nodes, the overall dimensions and parameters of the device, etc. so the program running this simulation was designed to have similarly broad functionality. A command-line interface was built to allow a user to do the following tasks: load and save a "device" to file, bring a device to equillibrium, run the simulation on a device for a set of conditions, and run the a range of simulations for a range of conditions to calculate a range of photon pulses for different transition times to find the how the FWHM varied with number of photons in a pulse. \\
-\subsubsection{Converting the equations to numerical form}
-In order to do calculation using the Drift-Diffusion and Poisson's equations, they first had to be discretised. This could be achieved through the use of Taylor expansion's.\cite{Nkonga}\cite{ECE606}\\
-Using the Taylor expansions of:
-\begin{eqnarray}
-	f(x+\delta x) &= f(x) + \delta x\dfrac{df}{dx}\Big|_{x = x+\delta x} + (\delta x)^2 \dfrac{d^2f}{dx^2}\Big|_{x = x+\delta x} + ...\\
-	f(x-\delta x) &= f(x) - \delta x\dfrac{df}{dx}\Big|_{x = x-\delta x} + (\delta x)^2 \dfrac{d^2f}{dx^2}\Big|_{x = x-\delta x} - ...\\
-\end{eqnarray}
-it was possible to find approximations for both first a second derivatives by using:
-\begin{eqnarray}
-	\dfrac{df}{dx}\Big|_{x+\delta x/2} =& \frac{f(x+\delta x)-f(x-\delta x)}{\delta x}\\
-	\dfrac{d^2f}{dx^2}\Big|_{x_i} =&  \dfrac{f(x+\delta x) + f(x-\delta x) - 2f(x_i)}{(\delta x)^2} 
-\end{eqnarray}
-Using these approximations, it was possible use Gauss' law to find the potential at each node point using:\cite{ECE606}
-\begin{eqnarray}
-	&\nabla\cdot\vec{D} = \rho \\
-	&\nabla^2 \cdot V = \dfrac{\rho}{\epsilon_r \epsilon_0} \\
-	&\nabla^2 \cdot V = \dfrac{V_{i+1}+V_{i-1}-2V_i}{a^2} \\
-	\hookrightarrow & \dfrac{V_{i+1}+V_{i-1}-2V_i}{a^2} = \dfrac{\rho}{\epsilon_r \epsilon_0}\\
-	& \dfrac{V_{i+1}+V_{i-1}-2V_i}{a^2} = \dfrac{q}{\epsilon_r \epsilon_0}(p+N_D-n-N_A)
-\end{eqnarray}
-Where $i$ indicates the node index. Using the same method, current densities $J_n$ and $J_p$ can be calculated thus:
-\begin{eqnarray}
-	J_n =& -q\mu_n(\dfrac{n_{i+1}+n_{i}}{2})(\dfrac{V_{i+1}-V_{i}}{a})\\
-	 +& \mu_n (\dfrac{n_{i+1}+n_{i}}{2})(\dfrac{E_{c(i+1)}-E_{c(i)}}{a}) + qD_n(\dfrac{n_{i+1}-n_{i}}{a}) \\
-	J_p =& -q\mu_p(\dfrac{p_{i+1}+p_{i}}{2})(\dfrac{V_{i+1}-V_{i}}{a})\\
-	 +& \mu_p (\dfrac{p_{i+1}+p_{i}}{2})(\dfrac{E_{v(i+1)}-E_{v(i)}}{a}) - qD_p(\dfrac{p_{i+1}-p_{i}}{a}) \\
-\end{eqnarray}
+
 \section{Results}
 This section will simply contain any graphs of importance for model and real results, such as the $\sigma_{FWHM}(\ln(N_{\gamma}))$, $J_n(t)$, $J_n(x)$, potentially $N_{\gamma}(T)$ and the graph of n-doped and p-doped segments coming together and their $n(x,t)$ graph. \\ These will come with brief descriptions and overview of the data they contain including initial condition parameters, choices of constants, and references to the code in the appendix that generated them.
 \section{Discussion}
