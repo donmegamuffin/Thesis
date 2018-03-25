@@ -328,12 +328,57 @@ I intend to reference in a similar form to standard reference, but include page 
 	\end{equation}
 \end{minipage}}
 \medbreak
-Format requested: "Last name, First initial. (Year published). Article title. Journal, Volume (Issue)" \textbf{How do I get it in that form $\downarrow$ ?}
+Format requested: "Last name, First initial. (Year published). Article title. Journal, Volume (Issue)" \textbf{How do I get it in that form $\downarrow$ ?} \textbf{Im aware a couple of these haven't worked properly from Bibtex, I'll find a fix later.}
 \bibliography{thesis_ref}{}
 \bibliographystyle{ieeetr}
 \bigskip
 
 \section{Appendix}
+\subsection{Code Overview: Micro}
+\subsubsection{Current density calculation methods}
+\begin{figure}
+	\centering
+	\includegraphics[scale=0.2]{Figures/JnL}
+	\caption{\label{fig:Mic:JnL} Diagram of calculateJnLEC method's functionality.}
+\end{figure}
+This section contains the information on how current was calculated within the device.\\ Four functions were written, all with very similar structures but with alterations dependent on whether the order was starting from the left, or from the right, and whether it was done for the holes or electrons: JnL, JnR, JpL, and JpR. \\
+For this example, JnL will be used to demonstrate the structure, with its depiction shown in Figure \ref{fig:Mic:JnL}.
+The code worked by taking the device's std::vector<Node>s and manipulating the electron (or hole) densities by applying:
+\begin{eqnarray}
+	&J_n = -q\mu_n n\nabla V + \mu_n n \nabla E_c + q D_n \nabla n\\
+		\hookrightarrow &J_n = -q\mu_n(\dfrac{n_{i+1}+n_{i}}{2})(\dfrac{V_{i+1}-V_{i}}{a})\\
+	+& \mu_n (\dfrac{n_{i+1}+n_{i}}{2})(\dfrac{E_{c(i+1)}-E_{c(i)}}{a}) + qD_n(\dfrac{n_{i+1}-n_{i}}{a}) \\
+\end{eqnarray}
+starting from the second node, to the last in that order, calculating the current between the node, and the that of the one to its left.\\
+Line 3 creates a variable to store the absolute value of the current between the two nodes and adds it to a cumulative value to be returned once the function is complete. This return is used in parts of the program to guage whether the device is in equilibrium or not.\\
+Lines 11 and 12 simply find the current and transfer the difference from one to other with correct dependence depending on the direction of the current density.\\
+The exchange scale multiplies this transfer which results in significantly fewer loops required where time is not a factor in the calculation. As current density is charge transfer per unit time, it also works as a crude method of integrating the current calculation over a time period, treating it as constant current.\\
+By using this approximation method, it is only valid for relatively small approximations where $J_{nL} t \ll n$ and is the equivalent of doing:
+\begin{equation}
+ \sum\limits_{i=1}^{x}\dfrac{dn}{dt}\Big|_{t=t_i} = \lim\limits_{n''(t)\to 0} x* \dfrac{dn}{dt}\Big|_{t=t_1}  
+\end{equation}
+and is assumed that the rate in change in current transfer is smooth and small as to allow for this approximation. Because, in this approximation, $\frac{dn}{dt}$ is only needed to be calculated once, this is far faster for use in the equilibrium code by applying an approximation factor.
+\begin{lstlisting}[caption = Example of the current calculation algorithm]
+double Device_1D::calculateJnLEC(double exchangeScale)
+{
+	double JnL_cum = 0;	
+	for (std::size_t i = 1; i < nAry.size(); i++)
+	{
+		double dn = (nAry[i].n - nAry[i - 1].n) / nodeWidth;
+		double dV = (nAry[i].V - nAry[i - 1].V) / nodeWidth;
+		double dEc = (nAry[i].Ec - nAry[i - 1].Ev) / nodeWidth;
+		double n = (nAry[i].n + nAry[i - 1].n) / 2;
+		double JnL = (-q * mu*n*dV) - (mu*n*dEc) + (q*D*dn);
+		nAry[i].n = nAry[i].n - (JnL*exchangeScale);
+		nAry[i - 1].n = nAry[i - 1].n + (JnL*exchangeScale);
+		JnL_cum += abs(JnL);
+	}
+	return JnL_cum;
+}
+\end{lstlisting}
+
+
+
 In this section I will include any data I may have, and include all\textbf{(?)} the code produced for the project. An example code snippet to demonstrate formatting:\smallskip
 \begin{lstlisting}[caption = Hello world example code.]
 	int main()
