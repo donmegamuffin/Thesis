@@ -373,9 +373,10 @@ void Device_1D::simulateDevice(double t_trans, double t_step, std::string radOut
 	double J = 0;
 	double inV = 0;
 	radOutFile << "t,V,Rrad\n";
-	for (int i = 0; i < 500; i++)
+	double Rrad = 0;
+	do
 	{
-		t_now = i * t_step;
+		t_now += t_step;
 		inV = inputV(t_now, t_trans);
 		J = inV / (A * R);
 		injectCharges(J, t_step);
@@ -384,7 +385,8 @@ void Device_1D::simulateDevice(double t_trans, double t_step, std::string radOut
 		//In p in from left, n from right
 		calculateJpREV(t_step);
 		calculateJnLEC(t_step);
-		radOutFile << t_now << "," << inV << "," << calcRadRecombine(t_step) << std::endl;
+		Rrad = calcRadRecombine(t_step);
+		radOutFile << t_now << "," << inV << "," << Rrad << std::endl;
 
 		//Print device state to debug
 		for (auto a : nAry)
@@ -396,7 +398,8 @@ void Device_1D::simulateDevice(double t_trans, double t_step, std::string radOut
 			debugFile << a.p << ",";
 		}
 		debugFile << std::endl;
-	}
+	} while (Rrad >= 0);
+
 	//Make sure to close file after doing calculations
 	radOutFile.close();
 
