@@ -255,21 +255,20 @@ void Device_1D::calculateVoltages()
 	//Loop through each of the nodes
 	for (std::size_t i = 0; i < nAry.size(); i++)
 	{
+		double a2 = pow(nodeWidth, 2);
+		double C = (q*a2) / e_0;
+		double netCharge = nAry[i].p + nAry[i].Nd - nAry[i].n - nAry[i].Na;
 		//If node is at a cap position change calculation
 		if (i == 0)
 		{
-			//TODO Do a different calculation
-			nAry[i].V = pow(nodeWidth, 2)*((q / (2 * e_0))*(nAry[i].p + nAry[i].Nd - nAry[i].n - nAry[i].Na) + nAry[i + 1].V);
+			nAry[i].V = 0.5*C*netCharge + nAry[i + 1].V;
 		}
 		else if (i == (nAry.size() - 1))
 		{
-			nAry[i].V = pow(nodeWidth, 2)*((q / (2 * e_0))*(nAry[i].p + nAry[i].Nd - nAry[i].n - nAry[i].Na) + nAry[i - 1].V);
+			nAry[i].V = 0.5*C*netCharge+ nAry[i - 1].V;
 		}
 		else	//Do normal calculation
 		{
-			double a2 = pow(nodeWidth, 2);
-			double C = (q*a2) / e_0;
-			double netCharge = nAry[i].p + nAry[i].Nd - nAry[i].n - nAry[i].Na;
 			nAry[i].V = 0.5*(C*(netCharge)+nAry[i - 1].V + nAry[i + 1].V);
 			//nAry[i].V = pow(nodeWidth, 2)*((q / (2 * e_0))*(nAry[i].p + nAry[i].Nd - nAry[i].n - nAry[i].Na) + nAry[i + 1].V + nAry[i - 1].V); //O
 		}
@@ -299,7 +298,7 @@ void Device_1D::cancelCharges()
 
 void Device_1D::injectCharges(double CurrentDensity, double injectionDuration)
 {
-	//Assumes p-n style device. Inject n in right, p on left.
+	//Inject n in right, p on left.
 	nAry[0].n += (CurrentDensity*injectionDuration);
 	nAry[nAry.size() - 1].p += (CurrentDensity*injectionDuration);
 	return;
@@ -319,14 +318,14 @@ double Device_1D::calcRadRecombine(double timeScale)
 
 double Device_1D::inputV(double time, double transition_time)
 {
-	double Vramp = 4e9;
+	const double Vramp = 4e9;
 	if (time < transition_time)
 		return Vramp * time;
 	else
 		return Vramp * ((2 * transition_time) - time);
 }
 
-void Device_1D::simulateDevice_pn(double & outFWHM, double & outRrad, double t_step, double t_trans)
+void Device_1D::simulateDevice(double & outFWHM, double & outRrad, double t_step, double t_trans)
 {
 	double t_now = 0;	//current device simulation time
 	std::vector<double> t_Vec;	//Stores all the times
@@ -355,7 +354,7 @@ void Device_1D::simulateDevice_pn(double & outFWHM, double & outRrad, double t_s
 		Rrad_cum += Rrad_now;
 	} while (Rrad_now>0);
 
-	outFWHM = GetRadFWHM(Rrad_Vec, t_Vec);
+	outFWHM = calculateFWHM(Rrad_Vec, t_Vec);
 	outRrad = Rrad_cum;
 }
 
@@ -483,7 +482,7 @@ void Device_1D::fullSim(std::string eqmFileName, double timeStep, double transSt
 		//Add the transition time to trans vector
 		t_trans_Vec.emplace_back(i*transStep);
 
-		simulateDevice_pn(FWHM_now, Rcum_now, timeStep, i*transStep);
+		simulateDevice(FWHM_now, Rcum_now, timeStep, i*transStep);
 
 		FWHM_Vec.emplace_back(FWHM_now);
 		Rcum_Vec.emplace_back(Rcum_now);
@@ -665,7 +664,7 @@ int Device_1D::FWHMfindFirstBinAbove(std::vector<double> RadVector, int PeakInde
 * time vector to find how much time elapsed between these two points.
 * Returns duration of the Full width half maximum in whatever unit time vector is in.
 */
-double Device_1D::GetRadFWHM(std::vector<double> RadVector, std::vector<double> TimeVector)
+double Device_1D::calculateFWHM(std::vector<double> RadVector, std::vector<double> TimeVector)
 {
 	//Get the peak of the curve
 	int PeakBin = findPeakBin(RadVector);

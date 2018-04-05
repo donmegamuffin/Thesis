@@ -134,13 +134,13 @@ private:
 	double inputV(double time, double transition_time);
 
 	//basic simulation All-in-one function for easy calling
-	void simulateDevice_pn(double& outFWHM, double& outRrad, double t_step, double t_trans);
+	void simulateDevice(double& outFWHM, double& outRrad, double t_step, double t_trans);
 	
 	//Taken from Cap(bucket) sim
 	int findPeakBin(std::vector<double> RadVector);
 	int FWHMfindFirstBinBelow(std::vector<double> RadVector, int PeakIndex);
 	int FWHMfindFirstBinAbove(std::vector<double> RadVector, int PeakIndex);
-	double GetRadFWHM(std::vector<double> RadVector, std::vector<double> TimeVector);
+	double calculateFWHM(std::vector<double> RadVector, std::vector<double> TimeVector);
 
 
 };
