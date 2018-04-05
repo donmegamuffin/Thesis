@@ -24,7 +24,7 @@
 	frame=single,
 	tabsize=2,
 	numbers=left,
-	basicstyle=\small,
+	basicstyle=\scriptsize,
 	showstringspaces=false,
 	captionpos = b
 }
@@ -96,7 +96,7 @@ Briefly outline the quantum model, and again discuss how it wasn't practical to 
 In this section will outline the \textbf{Windisch} paper, and it's modelling of instantaneous switching, no loss of charges out of device (LED acts as a charge "Bucket" with $R_{in} = \frac{J}{q\omega} $). Discuss how it assumes negligible Non-radiative recombination.
 \subsection{Brailovsky \& Mitin}
 Discuss the analytical solution they provide, the massive reverse current predicted, and their neglection of drift current in their analytical model, but how this massive reverse current might actually be the source of the fast-switching of the LED, faster than expected.
-\section{Method}
+\section{Method}\label{sec:Method}
 In order to explore the behaviour of the light emitting diode at short time-scales, two simulations were created to explore how different interpretations of the device would affect the results: A "macroscopic" simulation treating the device as a singular object, and a second "microscopic" simulation that took into account of internals of the device. The theoretical foundation for carrier transport in both device simulations was the "Drift-Diffusion" model due to its common usage, and simpler implementation than competing models, such as the Semi-classical Boltzmann Transport Equations that has its basis in the scattering of classical point-like holes and electrons from one set of phase-space coordinates to another.\cite{NSD}[p70-6] \\
 The goal of both simulations was to produce plots of the full width half maximum ($\sigma_{FWHM}$) as a function of the number of photons in the pulse, to compare with the real device output.\\
 Experimentally, voltage across the diode was ramped up and down over the period of several nanoseconds, with the forwards bias injecting charges, and the reverse bias pulling any remaining charges that hadn't combined, out of the device. In both models, to match the experimental conditions, the applied voltage to the diode was modelled as a tent map with the equations:
@@ -210,7 +210,7 @@ This was done by dividing the device into segments. A visual representation can 
 Each "node" along the device has a set width, $a$, and contain several variables and constants: The charge densities for electrons and holes ($n$ and $p$ respectively), and the potential at that point $V$ being the variables, and with constants determining doping of acceptor atoms $N_a$, doping of donor atoms $N_d$, and the Conduction and valence band relative energies, $E_c$ and $E_v$ respectively. \\
 The device would be constructed as a "string" of these Nodes, with a set length, and area perpendicular to the current, which would limit it strictly to cuboid shaped devices. \\
 Due the increased complexity of this model, there are more initial conditions to be considered, such as how many nodes there are, the specifications of each of the nodes, the overall dimensions and parameters of the device, etc. so the program running this simulation was designed to have similarly broad functionality. A command-line interface was built to allow a user to do the following tasks: load and save a "device" to file, bring a device to equillibrium, run the simulation on a device for a set of conditions, and run the a range of simulations for a range of conditions to calculate a range of photon pulses for different transition times to find the how the FWHM varied with number of photons in a pulse. \\
-\subsubsection{Converting the equations to numerical form}
+\subsubsection{Converting the equations to numerical form}\label{sec:Meth:Mic:eqn}
 In order to do calculation using the Drift-Diffusion and Poisson's equations, they first had to be discretised. This could be achieved through the use of Taylor expansion's.\cite{Nkonga}\cite{ECE606}\\
 Using the Taylor expansions of:
 \begin{eqnarray}
@@ -334,6 +334,10 @@ Format requested: "Last name, First initial. (Year published). Article title. Jo
 \bigskip
 
 \section{Appendix}
+\subsection{Code Overview: General}
+\subsubsection{FWHM calculation methods}
+The calculation of the FWHM is split across 4 methods for readability and reuse. The algorithm for finding the FWHM is found in algorithm \ref{alg:Mac:FWHM}. Each step is handled by a separate method.
+
 \subsection{Code Overview: Micro}
 \subsubsection{Current density calculation methods}
 \begin{figure}
@@ -355,7 +359,7 @@ Lines 11 and 12 simply find the current and transfer the difference from one to 
 The exchange scale multiplies this transfer which results in significantly fewer loops required where time is not a factor in the calculation. As current density is charge transfer per unit time, it also works as a crude method of integrating the current calculation over a time period, treating it as constant current.\\
 By using this approximation method, it is only valid for relatively small approximations where $J_{nL} t \ll n$ and is the equivalent of doing:
 \begin{equation}
- \sum\limits_{i=1}^{x}\dfrac{dn}{dt}\Big|_{t=t_i} = \lim\limits_{n''(t)\to 0} x* \dfrac{dn}{dt}\Big|_{t=t_1}  
+ \sum\limits_{i=1}^{x}\dfrac{dn}{dt}\Big|_{t=t_i} = \lim\limits_{n''(t)\to 0} x\cdot \dfrac{dn}{dt}\Big|_{t=t_1}  
 \end{equation}
 and is assumed that the rate in change in current transfer is smooth and small as to allow for this approximation. Because, in this approximation, $\frac{dn}{dt}$ is only needed to be calculated once, this is far faster for use in the equilibrium code by applying an approximation factor.
 \begin{lstlisting}[caption = Example of the current calculation algorithm]
@@ -377,16 +381,121 @@ double Device_1D::calculateJnLEC(double exchangeScale)
 }
 \end{lstlisting}
 
-
-
-In this section I will include any data I may have, and include all\textbf{(?)} the code produced for the project. An example code snippet to demonstrate formatting:\smallskip
-\begin{lstlisting}[caption = Hello world example code.]
-	int main()
+\subsubsection{Voltage calculation method}
+This consists of a single function which cycles through each of the nodes in the device and does the following calculation following from the derivation shown in section \ref{sec:Meth:Mic:eqn}:
+\begin{eqnarray}
+& \dfrac{V_{i+1}+V_{i-1}-2V_i}{a^2} = \dfrac{q}{\epsilon_r \epsilon_0}(p+N_D-n-N_A) \\
+\hookrightarrow & V_i = \frac{1}{2}[\dfrac{q}{\epsilon_r \epsilon_0}(p+N_D-n-N_A) + V_{i+1}+V_{i-1}]
+\end{eqnarray}
+with the cap-ends of the device having slightly modified calculations, for first node of the device:
+\begin{equation}
+V_i = \frac{1}{2}[\dfrac{q}{\epsilon_r \epsilon_0}(p+N_D-n-N_A)] + V_{i+1} 
+\end{equation}
+and last node of the device:
+\begin{equation}
+V_i = \frac{1}{2}[\dfrac{q}{\epsilon_r \epsilon_0}(p+N_D-n-N_A)] + V_{i-1} 
+\end{equation}
+\begin{lstlisting}[caption = Voltage calculation method]
+void Device_1D::calculateVoltages()
+{
+	//Loop through each of the nodes
+	for (std::size_t i = 0; i < nAry.size(); i++)
 	{
-		std::cout<<"Hello world!"<<std::endl;
+		double a2 = pow(nodeWidth, 2);
+		double C = (q*a2) / e_0;
+		double netCharge = nAry[i].p + nAry[i].Nd - nAry[i].n - nAry[i].Na;
+		//If node is at a cap position change calculation
+		if (i == 0)
+		{
+			nAry[i].V = (C*(netCharge)+ nAry[i + 1].V);
+		}
+		else if (i == (nAry.size() - 1))
+		{
+			nAry[i].V = (C*(netCharge)+nAry[i - 1].V);
+		}
+		else	//Do normal calculation
+		{
+			nAry[i].V = 0.5*(C*(netCharge)+nAry[i - 1].V + nAry[i + 1].V);
+		}
 	}
+}
 \end{lstlisting}
 \medskip
+The first \textbf{if} statement implement the calculation if it's doing it for the first node, and the \textbf{else if} statement implements the end-node calculation. The first lines of the for loop are there to break down the calculation's constants for a node and make later calculations more readable. 
+
+\subsubsection{Charge injection Method}
+\begin{figure}[h]
+	\includegraphics[scale=0.17]{Figures/Injection}
+	\caption{\label{fig:Code:Injection} Visualisation of charge injection method}
+\end{figure}
+This method handles the injection of charges at the end nodes of the device. A visualisation of what the code is doing can be seen in figure \ref{fig:Code:Injection} and simply injects these charges into the end nodes of the device.
+It has two parameters: Current density ($J_{external}$) and the Injection Duration (using the $t_{step}$ for the simulation). The total density of charges to be added to the ends in a single time step of the device will simply be $\frac{dn}{dt} = J_{external}\cdot t$.\\
+The $J_{external}$ used in the parameter for the simulation is the current density calculated assuming Ohm's Law is correct:
+\begin{equation}
+	J = \frac{I}{A} = \frac{V}{A\cdot R}
+\end{equation}
+\begin{lstlisting}[caption = Charge injection method, basicstyle=\tiny]
+void Device_1D::injectCharges(double CurrentDensity, double injectionDuration)
+{
+	//Inject n in left, p on right.
+	nAry[0].n += (CurrentDensity*injectionDuration);
+	nAry[nAry.size() - 1].p += (CurrentDensity*injectionDuration);
+	return;
+}
+\end{lstlisting}
+
+\subsubsection{Simulation inner loop method}
+This section covers the details of how the inner loop is handled. There are two \textit{overloads} for this function but it will be demonstrated with the variant used for the full simulation rather than the single-use simulation which has minor changes (e.g. outputs a full Debug file of all the data, etc.).\\
+It requires references to two external \textbf{double} values as Output parameters to pass data calculated within this inner loop for both the FWHM and total photons calculated by the simulation. The last two parameters are the simulation step time and the time the voltage transitions from ramping up to ramping down.
+\begin{lstlisting}
+void Device_1D::simulateDevice(double & outFWHM, 
+			double & outRrad, double t_step, double t_trans)
+{
+	double t_now = 0;	//current device simulation time
+	std::vector<double> t_Vec;	//Stores all the times
+	double Rrad_now;		//Single Loop number of photons
+	std::vector<double> Rrad_Vec;	//Current device radiation
+	double Rrad_cum = 0;	//Cumulative radiation
+	double inV = 0;			//Input voltage
+	double J = 0;			//J
+	
+	//Main function loop
+	do
+	{
+		t_now += t_step;
+		t_Vec.emplace_back(t_now);
+		
+		inV = inputV(t_now, t_trans);
+		J = inV / (A * R);
+		
+		injectCharges(J, t_step);
+		calculateVoltages();
+		calculateJpREV(t_step);
+		calculateJnLEC(t_step);
+		
+		Rrad_now = calcRadRecombine(t_step);
+		Rrad_Vec.emplace_back(Rrad_now);
+		Rrad_cum += Rrad_now;
+	} while (Rrad_now>0);
+	
+	outFWHM = GetRadFWHM(Rrad_Vec, t_Vec);
+	outRrad = Rrad_cum;
+}
+\end{lstlisting}
+The simulation is contained in a \textbf{do....while} function as to allow it to run always run a single time, and then loop as long as the Radiative recombination is above zero, automatically terminating the loop once all photons have been emitted. This way of doing it meant that it works universally for any length of transition time.\\
+In line 18, the "inputV(...)" function, is the function used to calculate the voltage at a point in time, calculated from the tent map discussed in section \ref{sec:Meth:Mic:eqn} which returns the external Voltage applied.
+The following lines calculate the external current, inject the charges, and then calculate the internal current. \\
+Line 26 calculates the radiative recombination across every node using: 
+\begin{equation}
+	R_{rad} = Bnp\cdot t_{step}
+\end{equation}
+where $R_{rad}$ is the number of photons emitted during the simulation time-step, which is then put at the end of a Vector to be stored (so it can be user later to output to file in the other overload) and then added to the total cumulative photons in line 28.\\
+At the end of the simulation, the FWHM is calculated in line 31 and passed to the Output parameter \textit{outFWHM} and the cumulative number of photons passed to \textit{outRad}.
+
+
+
+
+
 An example of some raw data would be formatted into a table as such:\\
 \begin{table}[h]
 	\centering
