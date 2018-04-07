@@ -89,10 +89,29 @@ For this, the use of Blue, GaN-based LEDs pulsed at nano-second time-scales has 
 
 
 \section{Background Physics and Past Work}
-Explain first pn Junction, then pn junction structures, band gaps, LED homo vs hetero structure, and then the fundamental basis of recombination and how it leads to photon emission $\rightarrow$ LEDs. \footnote{(Note to self, Kittel has some good diagrams and basic explainations)}\\
-Discuss the Numerical Boltzmann Transport theory based on scattering, and explain that due to time, understanding, and knowledge constraints, this was not a practical option, but still talk about the overview of how it worked.
-Discuss drift diffusion equation and how its the basis of much of many of the other theories.
-Briefly outline the quantum model, and again discuss how it wasn't practical to go this route with the number of unknowns in the project.
+\subsection{Fundamentals}
+At the core of this investigation are the physics of charge-carrier transport within semiconductors, and semiconductor junctions.\\
+The simplest type of junction is the p-n, which made of a single crystal of semiconductor, doped with impurities to produce regions with different "majority carries". Donor atoms, which have more valence electrons than the intrinsic semiconductor, when infused into the semiconductor, result in an \textit{n-type} region with a majority carrier of electrons.\cite{Kittel}(p570) When these impurities become ionized by depletion of the carriers, an electric field is generated internally.\cite{Sze}(p16) \textit{P-type} semiconductor is produced in much the same way, but with doping with atoms with fewer valence electrons ("acceptor" impurities), leaving "holes" which become the majority carriers in that region, which are simply absences of an electron compared to the intrinsic lattice. These holes act as if they were  positive charges when subject to electric and magnetic fields and have the equivalent equations of motion.\cite{Kittel}(p206-8)\\
+By having a region of \textit{n-type} and \textit{p-type} semiconductor in contact, a p-n junction is formed, and the excess majority carriers from each attempt to diffuse to produce uniformity across the device, leading to the two majority carriers recombining at the interface to cancel each other out, leaving ionization of the impurities in both regions. The electric fields generated leads to potential barrier preventing complete diffusion and leads to separation of remaining electrons holes, and a depletion region near the potential barrier.\cite{Sze}(p80)\\
+The understanding of the movement of these charge carriers is what is needed to understand the nature of this fast-switching of an LED.\\
+As described above, carriers respond to electric fields. An application of an electric field, or magnetic field, will impart a Lorentz force
+\begin{equation}
+\vec{F} = q(\vec{E}+\vec{v}\times\vec{B})
+\end{equation}
+upon these particles, which will lead to an overall Drift current, $\vec{J}_{drift}$. With the addition of the current from the diffusion of these carriers in concentration gradient, $\vec{J}_{dif}$, we find the most widely used approximation to describe carrier transport in semi-conductors:\cite{SzeHiSpeed}(p58)
+\begin{eqnarray}
+&\vec{J}_{tot} = \vec{J}_{drift} + \vec{J}_{dif}\\
+&\vec{J_n} = q(n\mu\vec{E} + D\nabla n)
+\end{eqnarray}
+for electrons, where $\vec{J_n}$ is the current density vector, $q$ is the charge on the electron, $n$ is the charge density of electrons, $\mu$ is a mobility constant, $\vec{E}$ is the applied electric field, and $D$ is the drift mobility constant, which in a non-degenerate case [in which the doping concentration $N_D$ is $\ll N_C$ than the Number of conduction band states, and hence obey Boltzmann statistics\cite{Sze}(p18)] has the Einstein relation:\cite{SzeHiSpeed}(p58)
+\begin{equation}
+D = \frac{k_B T}{q}\mu
+\end{equation}
+where $k_B$ is the Boltzmann constant, and $T$ is temperature. \\
+This drift-diffusion equation can be modified to also account for conduction band energy $E_C$, as well as position dependence through effective mass $m*$ [which results from the parabolic energy-band equation $E(k) = \frac{\bar{h}^2k^2}{2m*}$\cite{Sze}(p13)] resulting in:\cite{Frensley}(p21)
+\begin{equation}
+J_n = -q\mu_n n \nabla V + \mu_n n \nabla E_C + q D_n \nabla n - \frac{3}{2}qD_n n \nabla \ln(m*_C)
+\end{equation}
 \subsection{Windisch}
 In this section will outline the \textbf{Windisch} paper, and it's modelling of instantaneous switching, no loss of charges out of device (LED acts as a charge "Bucket" with $R_{in} = \frac{J}{q\omega} $). Discuss how it assumes negligible Non-radiative recombination.
 \subsection{Brailovsky \& Mitin}
@@ -320,15 +339,6 @@ In this section talk about the limits of the model (only 1D, inaccuracies with r
 
 
 \section{References}
-This section will be filled automatically by using BibTeX once I've started putting together the .bib file.\\
-I intend to reference in a similar form to standard reference, but include page number for each. For example:\\
-\fbox{\begin{minipage}{10cm}
-	...leads to the well known drift diffusion current[4](p305) [6](p108):
-	\begin{equation}
-	J_{n} = q \mu_n n \vec{E} + q D_n \Delta n
-	\end{equation}
-\end{minipage}}
-\medbreak
 Format requested: "Last name, First initial. (Year published). Article title. Journal, Volume (Issue)" \textbf{How do I get it in that form $\downarrow$ ?} \textbf{Im aware a couple of these haven't worked properly from Bibtex, I'll find a fix later.}
 \bibliography{thesis_ref}{}
 \bibliographystyle{ieeetr}
