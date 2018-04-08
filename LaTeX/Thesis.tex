@@ -136,11 +136,47 @@ Where $S(\vec{k},\vec{k}')$ is the complete set of scattering rates from $\vec{k
 Due to it being less popular than the Drift-Diffusion model, this method was not explored in much depth.\\
 In the search for existing literature on the topic of nanosecond time-scale physics for LEDs, two papers of note were encountered which modelled LEDs under these conditions. The following subsections detail these two existing pieces of literature.
 \subsection{Existing Literature: Windisch}
-In this section will outline the \textbf{Windisch} paper, and it's modelling of instantaneous switching, no loss of charges out of device (LED acts as a charge "Bucket" with $R_{in} = \frac{J}{q\omega} $). Discuss how it assumes negligible Non-radiative recombination.
+In the paper, \textit{“Large-Signal-Modulation of High-EfficiencyLight-Emitting Diodes for Optical Communication”}, R. Windisch, et. Al\cite{Windisch} produced a model to explain the rapid recombination that happened up to a factor of two-times faster than the radiative recombination lifetime which, in general, is given by:
+\begin{equation}
+\tau_{rec} = \dfrac{n}{R_{rec}}
+\end{equation}
+where $R_{rec}$ is the radiative recombination rate, which in this case, is given by:\footnote{This is not the only form found in literature for $R_{rad}$. Alternatives include:$R_{rad} = Bnp \cdot \Big[1-\exp(-\frac{F_n-F_p}{k_B T})$ \cite{NSD}(p306) which includes Quasi-Fermi level dependancy, and $R_{rad} = B(np-n_0 p_0)$\cite{NSD}(p289).}
+\begin{eqnarray}
+R_{rec} = Bn(p_0 + n)\\
+p = p_0 + n
+\end{eqnarray}
+where B is the radiative recombination constant, which is found experimentally,\cite{Windisch}(p2) and $p_0$ is the doping concentration.\\
+In this model, a number of assumptions were made: The model was based on a Double Heterostructure LED (one where two semiconductors materials are grown together, where the different semiconductors have different band-gaps in a "sandwich" like arrangement.\cite{Sze}(p56)), had instant voltage and current switching, and had negligible recombination through means other than radiative.\\
+The boundary condition was set so at $t = 0$, $n = 0$, and increased in time following:
+\begin{equation}
+\dfrac{dn}{dt} = R_{in}(t) - R_{rec}(t)
+\end{equation}
+Where $R_{in}$ was simply the injection rate in, defined as:
+\begin{equation}
+R_{in} = \frac{J}{qw}
+\end{equation}
+Where $w$ was the width of the active region of the device. From this, an analytical solution for the carrier density was found:\cite{Windisch}(p2,3)
+\begin{eqnarray}
+&n(t) = -\frac{p_0}{2} + \frac{\omega}{2B} \tanh(\frac{\omega}{2}(t+C))\\
+&\omega = \sqrt{B^2p_0^2+4\frac{JB}{qw}}\\
+&C = \frac{2}{\omega} arctanh(\frac{p_0 B}{\omega})
+\end{eqnarray}
+and found that in the cases that the active region is highly doped, the device does indeed follow the expected Recombination lifetime exactly, but that in the case of low doping, where injected carrier concentration isn't proportionally negligible, the switch time can up to a factor of two faster.\cite{Windisch}(p4)\\
+However, this paper neglected the fact the carriers have charge and the associated Electric fields they'd generate, and focused exclusively on the active region of the device for simplicity.
 \subsection{Existing Literature: Brailovsky \& Mitin}
-Discuss the analytical solution they provide, the massive reverse current predicted, and their neglection of drift current in their analytical model, but how this massive reverse current might actually be the source of the fast-switching of the LED, faster than expected.
+The second paper of note was \textit{Fast switching of light-emitting diodes} by A.B. Brailovsky, and V.V.Mitin\cite{Brailovsky} where the authors produce an analytical model roughly based on the Drift-Diffusion equation. Again, like the previous paper, it assumes step-like instant-switching of the voltage.\\
+The basis of the model is that switching speed may be increased by switching from direct current pumping to controlling the voltage  across the LED.\cite{Brailovsky}(p2) By starting with the equation for change in electron concentration around the p-region of the device:
+\begin{equation}
+\dfrac{\partial n}{\partial t} = D \dfrac{\partial^2n}{\partial t^2} - \frac{n}{\tau}
+\end{equation}
+where $D$ is the diffusion coefficient, and $\tau$ is the recombination lifetime of the electrons in the p-region. After moving to dimensionless variables, setting the boundary conditions for $n(x,t)$ of $n(0,0) = 0$, $n(0,t) = \Delta n(1-\exp(-\alpha t))$, and $n(\infty,t) = 0$, then applying a laplace transformation, a solution was found of:
+\begin{equation}
+n_p(x) = \Delta n e^{-x\sqrt{p+1}}\Big[\frac{1}{p}-\frac{1}{p+\alpha}\Big]
+\end{equation}
+where $\alpha$ is a constant determining how fast concentration at the junction changes, and $n_p(x)$ is the Laplace transform of $n(x,t)$.\cite{Brailovsky}(p2) This applies to the switching on of the device, and not to the switching off, and also isn't complete, as it ignores the Electric fields effects like the previous paper and neglects the drift effects in this solution.\cite{Brailovsky}(p3) \\
+From this solution, it was shown that the current in the device in the case of large values of $\alpha$ ($\approx>10$) resulted in large reverse currents within the device, which could be the reason for switching times faster than the Radiative Recombination lifetime.\\\cite{Brailovsky}(p2)
 \section{Method}\label{sec:Method}
-In order to explore the behaviour of the light emitting diode at short time-scales, two simulations were created to explore how different interpretations of the device would affect the results: A "macroscopic" simulation treating the device as a singular object, and a second "microscopic" simulation that took into account of internals of the device. The theoretical foundation for carrier transport in both device simulations was the "Drift-Diffusion" model due to its common usage, and simpler implementation than competing models, such as the Semi-classical Boltzmann Transport Equations that has its basis in the scattering of classical point-like holes and electrons from one set of phase-space coordinates to another.\cite{NSD}[p70-6] \\
+In order to explore the behaviour of the light emitting diode at short time-scales, two simulations were created to explore how different interpretations of the device would affect the results: A "macroscopic" simulation treating the device as a singular object, and a second "microscopic" simulation that took into account of internals of the device. The theoretical foundation for carrier transport in both device simulations was the Drift-Diffusion model due to its common usage, and simpler implementation than competing models, such as the Semi-classical Boltzmann Transport Equations that has its basis in the scattering of classical point-like holes and electrons from one set of phase-space coordinates to another.\cite{NSD}[p70-6] \\
 The goal of both simulations was to produce plots of the full width half maximum ($\sigma_{FWHM}$) as a function of the number of photons in the pulse, to compare with the real device output.\\
 Experimentally, voltage across the diode was ramped up and down over the period of several nanoseconds, with the forwards bias injecting charges, and the reverse bias pulling any remaining charges that hadn't combined, out of the device. In both models, to match the experimental conditions, the applied voltage to the diode was modelled as a tent map with the equations:
 \begin{eqnarray}
