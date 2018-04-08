@@ -108,13 +108,36 @@ for electrons, where $\vec{J_n}$ is the current density vector, $q$ is the charg
 D = \frac{k_B T}{q}\mu
 \end{equation}
 where $k_B$ is the Boltzmann constant, and $T$ is temperature. \\
-This drift-diffusion equation can be modified to also account for conduction band energy $E_C$, as well as position dependence through effective mass $m*$ [which results from the parabolic energy-band equation $E(k) = \frac{\bar{h}^2k^2}{2m*}$\cite{Sze}(p13)] resulting in:\cite{Frensley}(p21)
+This drift-diffusion equation can be modified to also account for conduction band energy $E_C$, as well as position dependence through effective mass $m*$ [which results from the parabolic energy-band equation $E(k) = \frac{\hbar^2k^2}{2m*}$\cite{Sze}(p13)] resulting in:\cite{Frensley}(p21)
 \begin{equation}
 J_n = -q\mu_n n \nabla V + \mu_n n \nabla E_C + q D_n \nabla n - \frac{3}{2}qD_n n \nabla \ln(m*_C)
 \end{equation}
-\subsection{Windisch}
+These current equations come are joined by two other equations of importance: Maxwell's equations (specifically Poisson's equation):
+\begin{equation}
+\nabla \vec{E} = \frac{\rho(x,y,z)}{\epsilon}
+\end{equation}
+(where $\rho$ is the charge density, and $\epsilon$ is permittivity) and the continuity equation for time-dependent systems:
+\begin{equation}
+\dfrac{\partial n}{\partial t} = G_n - R_n + \frac{1}{q}\nabla\cdot\vec{J}_n
+\end{equation}
+In which $G_n$ and $R_n$ are thermal generation and recombination rates respectively.\cite{Sze}(p63)\cite{NSD}(p287)
+\medskip
+An alternative to this method of modelling transport within the device, is through the semi-classical Boltzmann Transport equation (BTE), describing the movement of the charge carriers through phase space, and in bulk material has the form:
+\begin{equation}
+\Big(\dfrac{\partial f(\vec{r},\vec{k},t)}{\partial t}\Big)_C = \dfrac{\partial f(\vec{r},\vec{k},t)}{\partial t} + \vec{v}\cdot\nabla f(\vec{r},\vec{k},t) + \frac{E}{\hbar}\cdot\nabla_k f(\vec{r},\vec{k},t)
+\end{equation}
+Where $\vec{r}$ and $\vec{k}$ are position and phase-space vectors respectively, and $f(\vec{r},\vec{k},t)$ is the particle distribution function.\cite{NSD}(p70)\\
+The evolution of this particle distribution function in time is handled through scattering of these electrons and holes treated as classical point particles:
+\begin{eqnarray}
+\Big(\dfrac{\partial f(\vec{r},\vec{k},t)}{\partial t}\Big)_C & = \int\{f(\vec{r},\vec{k}',t)[1-f(\vec{r},\vec{k},t)]S(\vec{k}',\vec{k})\\
+&-f(\vec{r},\vec{k},t)[1-f(\vec{r},\vec{k}',t)]S(\vec{k},\vec{k}')\}d\vec{k}'
+\end{eqnarray}
+Where $S(\vec{k},\vec{k}')$ is the complete set of scattering rates from $\vec{k}$ to $\vec{k}'$. This scattering rate comprises of many terms, incorporating scattering due to Polar optical phonons, acoustic phonons, impurities, and non-parabolic band scattering amongst others.\cite{NSD}(p72-6)\\
+Due to it being less popular than the Drift-Diffusion model, this method was not explored in much depth.\\
+In the search for existing literature on the topic of nanosecond time-scale physics for LEDs, two papers of note were encountered which modelled LEDs under these conditions. The following subsections detail these two existing pieces of literature.
+\subsection{Existing Literature: Windisch}
 In this section will outline the \textbf{Windisch} paper, and it's modelling of instantaneous switching, no loss of charges out of device (LED acts as a charge "Bucket" with $R_{in} = \frac{J}{q\omega} $). Discuss how it assumes negligible Non-radiative recombination.
-\subsection{Brailovsky \& Mitin}
+\subsection{Existing Literature: Brailovsky \& Mitin}
 Discuss the analytical solution they provide, the massive reverse current predicted, and their neglection of drift current in their analytical model, but how this massive reverse current might actually be the source of the fast-switching of the LED, faster than expected.
 \section{Method}\label{sec:Method}
 In order to explore the behaviour of the light emitting diode at short time-scales, two simulations were created to explore how different interpretations of the device would affect the results: A "macroscopic" simulation treating the device as a singular object, and a second "microscopic" simulation that took into account of internals of the device. The theoretical foundation for carrier transport in both device simulations was the "Drift-Diffusion" model due to its common usage, and simpler implementation than competing models, such as the Semi-classical Boltzmann Transport Equations that has its basis in the scattering of classical point-like holes and electrons from one set of phase-space coordinates to another.\cite{NSD}[p70-6] \\
