@@ -47,7 +47,7 @@ public:
 		for all nodes in the device from Left to Right
 		@param exchangeScale - aproximation scaling modifier. Higher = faster but less precise.
 	*/
-	double calculateJnLEC(double exchangeScale);
+	double calculateJnLEC(double exchangeScale, bool bUseAbsCurrent);
 	/*	
 		Does full current and charge density exchange for HOLES
 		for all nodes in the device from RIGHT to LEFT
@@ -123,6 +123,10 @@ public:
 
 	//full simulation for finding FWHM and Rrad_cum data
 	void fullSim(std::string eqmFileName, double timeStep, double transStep, double transMax);
+
+	/* Runs a square wave input like Braillovsky to check for reverse current*/
+	void JnSimulation(std::string FileOutName, double inCurrent, double inTime, double t_step);
+
 
 private:
 	/*__________________________Various helper/Tool functions___________________________*/
