@@ -308,7 +308,17 @@ void Device_1D::injectCharges(double CurrentDensity, double injectionDuration)
 	//Inject n in right, p on left.
 	double ChargeDensityIn = (CurrentDensity*injectionDuration) / (q);
 	nAry[0].n += ChargeDensityIn;
+	if (nAry[0].n < 0)
+	{
+		//nAry[0].p += abs(nAry[0].n);
+		nAry[0].n = 0;
+	}
 	nAry[nAry.size() - 1].p += ChargeDensityIn;
+	if (nAry[nAry.size() - 1].p < 0)
+	{
+		//nAry[nAry.size() - 1].n += abs(nAry[nAry.size() - 1].p);
+		nAry[nAry.size() - 1].p = 0;
+	}
 	return;
 }
 
@@ -381,6 +391,7 @@ void Device_1D::simulateDevice(double t_trans, double t_step, std::string radOut
 	double inV = 0;
 	radOutFile << "t,V,Rrad\n";
 	double Rrad = 0;
+	int i = 0;
 	do
 	{
 		t_now += t_step;
@@ -405,7 +416,8 @@ void Device_1D::simulateDevice(double t_trans, double t_step, std::string radOut
 			debugFile << a.p << ",";
 		}
 		debugFile << std::endl;
-	} while (Rrad >= 0);
+		i++;
+	} while (Rrad >= 0 && i < LOOP_CAP);
 
 	//Make sure to close file after doing calculations
 	radOutFile.close();
