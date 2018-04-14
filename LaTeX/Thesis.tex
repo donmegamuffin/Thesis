@@ -11,6 +11,7 @@
 \usepackage[font=it]{caption}
 \usepackage{algorithm2e}
 \usepackage{hyperref}
+\usepackage{float}
 
 %\usepackage[a4paper, margin=1.5in]{geometry}
 
@@ -403,23 +404,32 @@ in which the transition time maximum, step, and simulation time-step are defined
 
 
 \section{Results}
-\subsection{Micro Simulation}
+\subsection{Macro Simulation}
 The simulation was run for a device of Volume $= 1\cdot 10^{-11} cm^3 $ and constants for GaN of Radiative Recombination $B = 2.4\cdot10^{-17} m^3 s^{-1}$, an estimated experimental External Quantum Efficiency of $1\%$, and Direct Current resistance of $5\Omega$. The Voltage ramp up-down constant was taken experimentally as $4 V ns^{-1}$. The simulation time step was $10^{-12} s$, with ramp up to down switching time increased in steps of $5 \cdot 10^{-10} s$ until $5 \cdot 10^{-9} s$. Error on FWHM values are two times a simulation time step from how its value is found, and the error on the number of photons is $\sqrt{N}$ where N is the bin's number of photons. For almost all plots, the error bars are too small to be visible.\\
-\begin{figure}[t]
+\begin{figure}[H]
 	\centering
-	\includegraphics[scale=0.7]{Figures/MicroGraph}
-	\caption{Data from Microscopic model with Experimental Data plotted alongside.\label{res:Mic:G1}}
+	\includegraphics[scale=0.6]{Figures/MacroGraph}
+	\caption{Data from Macroscopic model with Experimental Data plotted alongside.\label{res:Mac:G1}}
 \end{figure}
-\begin{figure}[h]
+\begin{figure}[H]
 	\centering
-	\includegraphics[scale=0.7]{Figures/MicroGraph_log}
-	\caption{Log-log plot of Microscopic model data.\label{res:Mic:G1_log}}
+	\includegraphics[scale=0.6]{Figures/MacroGraph_log}
+	\caption{Log-log plot of Microscopic model data.\label{res:Mac:G1_log}}
 \end{figure}
 \bigskip
 
 \subsection{Macro Simulation}
 
-
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.6]{Figures/035mm80n18_eqm_Graph1}
+	\caption{Equilibrium Data plot of charge densities and potentials for a simulated pn device.\label{res:Mic:G1}}
+\end{figure}
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.6]{Figures/035mm80n18_eqm_Graph2.png}
+	\caption{Equilibrium Data plot of net charge densities and Internal Electric Field for a simulated pn device.\label{res:Mic:G2}}
+\end{figure}
 
 
 
