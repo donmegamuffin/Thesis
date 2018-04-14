@@ -327,9 +327,21 @@ double Device_1D::calcRadRecombine(double timeScale)
 	double RadCum = 0;
 	for (std::size_t i = 0; i < nAry.size(); i++)
 	{
-		RadCum += B * nAry[i].n*nAry[i].p;
-		nAry[i].n -= sqrt(B)*nAry[i].n;
-		nAry[i].p -= sqrt(B)*nAry[i].p;
+		//Find minority carriers in that region, and make them the dominant value in calculation
+		//If n are minority
+		if (nAry[i].n < nAry[i].p)
+		{
+			RadCum += B * pow(nAry[i].n,2) *timeScale;
+			nAry[i].n -= sqrt(B)*nAry[i].n*timeScale;
+			nAry[i].p -= sqrt(B)*nAry[i].n*timeScale;
+		}
+		//If p are minority
+		else
+		{
+			RadCum += B * pow(nAry[i].p, 2) *timeScale;
+			nAry[i].n -= sqrt(B)*nAry[i].p*timeScale;
+			nAry[i].p -= sqrt(B)*nAry[i].p*timeScale;
+		}
 	}
 	return RadCum;
 }
@@ -352,7 +364,7 @@ void Device_1D::simulateDevice(double & outFWHM, double & outRrad, double t_step
 	double Rrad_cum = 0;	//Cumulative radiation
 	double inV = 0;			//Input voltage
 	double J = 0;			//J
-
+	double RadMax = 0;
 	//Main function loop
 	do
 	{
@@ -364,13 +376,22 @@ void Device_1D::simulateDevice(double & outFWHM, double & outRrad, double t_step
 
 		injectCharges(J, t_step);
 		calculateVoltages();
+		//Assuming P - N device
+		//In p in from left, n from right
 		calculateJpREV(t_step);
 		calculateJnLEC(t_step, true);
 
 		Rrad_now = calcRadRecombine(t_step);
+		//Check and set new radmax for loop ending
+
+		if (Rrad_now > RadMax)
+		{
+			RadMax = Rrad_now;
+		}
+
 		Rrad_Vec.emplace_back(Rrad_now);
 		Rrad_cum += Rrad_now;
-	} while (Rrad_now>0);
+	} while (Rrad_now>=0 && Rrad_now > 0.4*RadMax);
 
 	outFWHM = calculateFWHM(Rrad_Vec, t_Vec);
 	outRrad = Rrad_cum;
@@ -392,18 +413,29 @@ void Device_1D::simulateDevice(double t_trans, double t_step, std::string radOut
 	radOutFile << "t,V,Rrad\n";
 	double Rrad = 0;
 	int i = 0;
+	double RadMax = 0;
 	do
 	{
 		t_now += t_step;
+
 		inV = inputV(t_now, t_trans);
 		J = inV / (A * R);
+
 		injectCharges(J, t_step);
 		calculateVoltages();
 		//Assuming P - N device
 		//In p in from left, n from right
 		calculateJpREV(t_step);
 		calculateJnLEC(t_step, true);
+
 		Rrad = calcRadRecombine(t_step);
+		//Check and set new radmax for loop ending
+		
+		if (Rrad > RadMax)
+		{
+			RadMax = Rrad;
+		}
+
 		radOutFile << t_now << "," << inV << "," << Rrad << std::endl;
 
 		//Print device state to debug
@@ -417,7 +449,7 @@ void Device_1D::simulateDevice(double t_trans, double t_step, std::string radOut
 		}
 		debugFile << std::endl;
 		i++;
-	} while (Rrad >= 0 && i < LOOP_CAP);
+	} while (Rrad >= 0 && Rrad > 0.4*RadMax);	//Keeps looping whilst rad is still > 0.3 of maximum rad count
 
 	//Make sure to close file after doing calculations
 	radOutFile.close();
@@ -494,7 +526,7 @@ void Device_1D::fullSim(std::string eqmFileName, double timeStep, double transSt
 	std::ofstream resultsFile;
 	resultsFile.open(eqmFileName + "_Rad_results.csv",'w');
 
-	for (int i = 0; i*transStep < transMax; i++)
+	for (int i = 1; i*transStep < transMax; i++)
 	{
 		//Set up device
 		loadState(eqmFileName);
