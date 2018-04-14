@@ -386,8 +386,64 @@ The same basis of incrementing the transition time in a stepwise fashion to find
 	\caption{\label{alg:Mic:Outer} Segmented device full ranged simulation algorithm.}
 \end{algorithm}
 in which the transition time maximum, step, and simulation time-step are defined by the user on command call.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 \section{Results}
-This section will simply contain any graphs of importance for model and real results, such as the $\sigma_{FWHM}(\ln(N_{\gamma}))$, $J_n(t)$, $J_n(x)$, potentially $N_{\gamma}(T)$ and the graph of n-doped and p-doped segments coming together and their $n(x,t)$ graph. \\ These will come with brief descriptions and overview of the data they contain including initial condition parameters, choices of constants, and references to the code in the appendix that generated them.
+\subsection{Micro Simulation}
+The simulation was run for a device of Volume $= 1\cdot 10^{-11} cm^3 $ and constants for GaN of Radiative Recombination $B = 2.4\cdot10^{-17} m^3 s^{-1}$, an estimated experimental External Quantum Efficiency of $1\%$, and Direct Current resistance of $5\Omega$. The Voltage ramp up-down constant was taken experimentally as $4 V ns^{-1}$. The simulation time step was $10^{-12} s$, with ramp up to down switching time increased in steps of $5 \cdot 10^{-10} s$ until $5 \cdot 10^{-9} s$. Error on FWHM values are two times a simulation time step from how its value is found, and the error on the number of photons is $\sqrt{N}$ where N is the bin's number of photons. For almost all plots, the error bars are too small to be visible.\\
+\begin{figure}[t]
+	\centering
+	\includegraphics[scale=0.7]{Figures/MicroGraph}
+	\caption{Data from Microscopic model with Experimental Data plotted alongside.\label{res:Mic:G1}}
+\end{figure}
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.7]{Figures/MicroGraph_log}
+	\caption{Log-log plot of Microscopic model data.\label{res:Mic:G1_log}}
+\end{figure}
+\bigskip
+
+\subsection{Macro Simulation}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 \section{Discussion}
 In this section, the results of the modelling compared to real-world results will be discussed. Topics of interest will be: Does the model predict the $N_{\gamma} \propto t^{3} $ results instead of the linear response predicted by Windisch's instantaneous current model ( $N_{\gamma} \propto t^{2} $) or does it manage the closer to experimental result of $t^{4}$?\\
 Discuss the model's simulated capacitance and whether it's similar to that measured experimentally, or predicted by \textbf{Veledar}.\\
