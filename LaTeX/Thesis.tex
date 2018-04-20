@@ -36,7 +36,7 @@
 \lstset{style=default}
 %opening
 
-\title{Modelling of Nanosecond time-scale Transient response of GaN LEDs \\ \textbf{Project Outline}}
+\title{Modelling of Nanosecond time-scale Transient response of GaN LEDs}
 \author{Zachary Humphreys}
 \date{\centering ID: 200951438
 	\\02/02/2018 \bigskip
@@ -85,7 +85,7 @@ Up until this point, all the discovered LED technology had led to LEDs with spec
 These films were generally deposited by either Molecular beam, or metalorganic vapour phase Epotaxy (MOVPE) but would require temperatures of $\approx1300$K and high pressures. As a result of the high rate of defects in GaN at the time ($10^9cm^{-2}$) made ZnSe generally the more popular choice for scientists ($10^3cm^{-2}$) which in turn, led to little research in the area.\cite{Nakamura}\\
 In 1990, Nakamura developed a technique (low carrier gas flow MOCVD) for producing high quality, uniform GaN using ammonia, but there was still the challenge of successfully doping it, meaning overcoming Mg acceptor dopant producing complexes with the H \cite{Nakamura}(p5) and finding a suitable Donor n-type. The first GaN pn junction was created in 1991 with an output power of $42\mu W$ and a External Quantum Efficiency of 0.18\% at a wavelength of 430nm (far lower than the minimum 1mW for usefulness.) \\
 Only after the discovery of InGaN, and its ideal properties as an active layer in a Double Heterostructure (DH), where it's bandgap was able to be tightly controlled through level of doping with tight control was the first Blue DH LED created, in 1993 which\cite{Nakamura}(p7), in turn, would lead to the first white LED with the addition of a white-phosphor\cite{Sze}(p608), \\The highest External Quantum efficiencies for LEDs are being achieved by GaInP encased in epoxy with 55\%,\cite{EQE} a massive improvement from the earliest versions of LEDs. In comparison, an oil lamp produces approximately $0.1lmW^{-1}$, an incandesceent bulb produces  $16lmW^{-1}$, fluorescent  $70lmW^{-1}$, but an LED will produce  $300lmW^{-1}$\cite{Nakamura}(p3) and the very first pn junction laser diode in visible spectrum of  $\approx 0.1lmW^{-1}$ created by Holonyak in 1962. \cite{Kittel}(p580)\\
-Due to their high efficiency and ability to be tightly controlled, LEDs have been implemented in many technologies from simple indicator lights, to room illumination, but recently, they've been considered for calibration of Large photo-detection experiments such as Hyper-K and ANTARES neutrino detection experiments, where they aim to detect the Cherenkov radiation from Muon's produced by neutrinos interacting with matter. These interaction create very short pulses of very few photons of approximately blue colour, and thus, a similar pulse of light would be preferable to calibrate such an experiment.\textbf{CITATIONS NEEDED} \\
+Due to their high efficiency and ability to be tightly controlled, LEDs have been implemented in many technologies from simple indicator lights, to room illumination, but recently, they've been considered for calibration of Large photo-detection experiments such as Hyper-K and ANTARES neutrino detection experiments, where they aim to detect the Cherenkov radiation from Muon's produced by neutrinos interacting with matter. These interaction create very short pulses of very few photons of approximately blue colour, and thus, a similar pulse of light would be preferable to calibrate such an experiment.\cite{Veledar}(p3) \\
 For this, the use of Blue, GaN-based LEDs pulsed at nano-second time-scales has been proposed. However, as the lifetime of charge carriers in these materials is on the order of nanoseconds for InGaN/AlGaN DH LEDs\cite{Brailovsky}, it has generally been considered practically impossible to produce such results, and conventional methods for driving LEDs result in rather low switching frequencies on the order of 1GHz. \\ To the contrary, it has been demonstrated that such pulses can be achieved experimentally \textbf{Rose citation?} and thus, an investigation into the mechanism will be conducted as the objective of this thesis, and whether experimental results can be simulated with current models and understanding.
 
 
@@ -164,6 +164,7 @@ Where $w$ was the width of the active region of the device. From this, an analyt
 \end{eqnarray}
 and found that in the cases that the active region is highly doped, the device does indeed follow the expected Recombination lifetime exactly, but that in the case of low doping, where injected carrier concentration isn't proportionally negligible, the switch time can up to a factor of two faster.\cite{Windisch}(p4)\\
 However, this paper neglected the fact the carriers have charge and the associated Electric fields they'd generate, and focused exclusively on the active region of the device for simplicity.
+
 \subsection{Existing Literature: Brailovsky \& Mitin}
 The second paper of note was \textit{Fast switching of light-emitting diodes} by A.B. Brailovsky, and V.V.Mitin\cite{Brailovsky} where the authors produce an analytical model roughly based on the Drift-Diffusion equation. Again, like the previous paper, it assumes step-like instant-switching of the voltage.\\
 The basis of the model is that switching speed may be increased by switching from direct current pumping to controlling the voltage  across the LED.\cite{Brailovsky}(p2) By starting with the equation for change in electron concentration around the p-region of the device:
@@ -175,7 +176,19 @@ where $D$ is the diffusion coefficient, and $\tau$ is the recombination lifetime
 n_p(x) = \Delta n e^{-x\sqrt{p+1}}\Big[\frac{1}{p}-\frac{1}{p+\alpha}\Big]
 \end{equation}
 where $\alpha$ is a constant determining how fast concentration at the junction changes, and $n_p(x)$ is the Laplace transform of $n(x,t)$.\cite{Brailovsky}(p2) This applies to the switching on of the device, and not to the switching off, and also isn't complete, as it ignores the Electric fields effects like the previous paper and neglects the drift effects in this solution.\cite{Brailovsky}(p3) \\
-From this solution, it was shown that the current in the device in the case of large values of $\alpha$ ($\approx>10$) resulted in large reverse currents within the device, which could be the reason for switching times faster than the Radiative Recombination lifetime.\\\cite{Brailovsky}(p2)
+From this solution, it was shown that the current in the device in the case of large values of $\alpha$ ($\approx>10$) resulted in large reverse currents within the device, which could be the reason for switching times faster than the Radiative Recombination lifetime.\cite{Brailovsky}(p2)\\
+
+\subsection{Temperature Consideration}
+A potentially important consideration for modelling an LED under these circumstances, is the effect of temperature upon the device. To give an approximation to check whether the effect of heating can be deemed negligible or not during these time-scales a rough energy calculation for the amount injected was done. By first approximating the device follows Ohm's Law, resulting in power being able to be calculated as:
+\begin{equation}
+P = I^2 R
+\end{equation}
+where $P$ is power, $I$ is current, and $R$ is Ohmic Resistance,	it is possible to use this to convert it to an amount of energy put into the device over a timespan. By then simply using the equation for specific heat capacity from the First Law of Thermodynamics:
+\begin{equation}
+Q = mc\Delta T 
+\end{equation}
+where $Q$ is the amount of heat in the system, $m$ is mass, $c$ is the specific heat capacity (for GaN in this case) and $\Delta T$ is the change in temperature,	it is possible to rearrange for $\Delta T$ and using $Q = Pt$ (assuming 100\% of the power is converted into heat). \\
+Assuming high current of 1 Amp, a resistance of $5\Omega$, over one nanosecond, $5\cdot10^{-9} J$ would be injected into the device. Using a $10^{-13}m^3$ device at a density of $6.15\cdot 10^3 kg m^{-3}$\cite{NSD} and a specific heat capacity of $0.49Jg^{-1}K^{-1}$\cite{GaN_Heatcap}, the approximate rise in temperature in one nanosecond would be $\approx 1.66 \cdot 10^{-5} K$. With the Thermal Conductivity of $160 Wm^{-1}K^{-1}$\cite{NSD}, the heat would be dissipated faster and cause negligible temperature rise over the simulation and thus could be ignored.
 \section{Method}\label{sec:Method}
 In order to explore the behaviour of the light emitting diode at short time-scales, two simulations were created to explore how different interpretations of the device would affect the results: A "macroscopic" simulation treating the device as a singular object, and a second "microscopic" simulation that took into account of internals of the device. The theoretical foundation for carrier transport in both device simulations was the Drift-Diffusion model due to its common usage, and simpler implementation than competing models, such as the Semi-classical Boltzmann Transport Equations that has its basis in the scattering of classical point-like holes and electrons from one set of phase-space coordinates to another.\cite{NSD}[p70-6] \\
 The goal of both simulations was to produce plots of the full width half maximum ($\sigma_{FWHM}$) as a function of the number of photons in the pulse, to compare with the real device output.\\
@@ -203,7 +216,7 @@ where $V$ is the bias voltage, $t$ is the time, $t_{trans}$ is the transition ti
 	\caption{\label{fig:bucketOverview}This figure displays the concept behind the macroscopic model where after time, $t=0$, electrons and holes ($n^-$ and $p^+$ respectively) are injected by currents $J_n$ and $J_p$ until the switch time, where upon the currents are reversed until all the charges have either combined to create photons ($\gamma$), or have been removed.}
 	\hrule
 \end{figure}
-In this simulation, the device was modelled as a single, complete object where charges would be injected, and photons ejected as a result of holes and electrons in the device combining (fig.\ref{fig:bucketOverview}). This interpretation would be similar to treating the device to that of a leaky capacitor under Direct Current operation. This is a not-entirely unrealistic as "real" LEDs do have some small level of capacitance in the form of charge storage and  depletion layer capacitance.\textbf{[CITE: VALEDAR,p30]} This model also means that opposite charges can interact immediately once inside, as the device is treated as so small that the charges are injected in the same place.\\
+In this simulation, the device was modelled as a single, complete object where charges would be injected, and photons ejected as a result of holes and electrons in the device combining (fig.\ref{fig:bucketOverview}). This interpretation would be similar to treating the device to that of a leaky capacitor under Direct Current operation. This is a not-entirely unrealistic as "real" LEDs do have some small level of capacitance in the form of charge storage and  depletion layer capacitance.\cite{Veledar}(p30) This model also means that opposite charges can interact immediately once inside, as the device is treated as so small that the charges are injected in the same place.\\
 \subsubsection{Calculating number of charges}
 The core calculation for number of charges in the device was done in a discrete time-step manner thus:
 \begin{eqnarray}
@@ -405,7 +418,7 @@ in which the transition time maximum, step, and simulation time-step are defined
 
 \section{Results}
 \subsection{Macro Simulation}
-The simulation was run for a device of Volume $= 1\cdot 10^{-11} cm^3 $ and constants for GaN of Radiative Recombination $B = 2.4\cdot10^{-17} m^3 s^{-1}$, an estimated experimental External Quantum Efficiency of $1\%$, and Direct Current resistance of $5\Omega$. The Voltage ramp up-down constant was taken experimentally as $4 V ns^{-1}$. The simulation time step was $10^{-12} s$, with ramp up to down switching time increased in steps of $5 \cdot 10^{-10} s$ until $5 \cdot 10^{-9} s$. Error on FWHM values are two times a simulation time step from how its value is found, and the error on the number of photons is $\sqrt{N}$ where N is the bin's number of photons. For almost all plots, the error bars are too small to be visible.\\
+The simulation was run for a device of Volumes from $= 1\cdot 10^{-10} cm^3 $ to $= 1\cdot 10^{-10} cm^3 $ and constants for GaN of Radiative Recombination $B = 2.4\cdot10^{-17} m^3 s^{-1}$,\cite{NSD} an estimated experimental External Quantum Efficiency of $1\%$, and Direct Current resistance of $5\Omega$. The Voltage ramp up-down constant was taken experimentally as $4 V ns^{-1}$. The simulation time step was $10^{-12} s$, with ramp up to down switching time increased in steps of $5 \cdot 10^{-10} s$ until $5 \cdot 10^{-9} s$. \\
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=0.6]{Figures/MacroGraph}
@@ -414,12 +427,15 @@ The simulation was run for a device of Volume $= 1\cdot 10^{-11} cm^3 $ and cons
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=0.6]{Figures/MacroGraph_log}
-	\caption{Log-log plot of Microscopic model data.\label{res:Mac:G1_log}}
+	\caption{Log-log plot of Macroscopic model data.\label{res:Mac:G1_log}}
 \end{figure}
-\bigskip
+Error on FWHM values are two times a simulation time step from how its value is found, and the error on the number of photons is $\sqrt{N}$ where N is the bin's number of photons. For almost all data points, the error bars are too small to be visible on the above graphs.\\
 
 \subsection{Micro Simulation}
 
+Using the same constants as the Macroscopic simulation where appropriate, there were some additional constants chosen according the properties of GaN: a charge mobility constant of $\mu = 1000 cm^2V^{-1}s^{-1}$ \cite{NSD}, temperature $T = 300 K$, $D = \frac{k_B T \mu}{q}$..\\
+For the results here, the simulated device was a simple p-n junction, with doping concentrations for bot $N_D$ and $N_A$ of $10^{18} cm^{-3}$ in line with typical values\cite{NSD}, with 80 node points, a length of $0.035cm$ and a cross sectional area to the current of $0.0004 cm^{2}$, an Ohmic Resistance of $5\Omega$, and a quantum efficiency of $1\%$ approximated from the experimental set-up. \\
+The device was first brought to equilibrium to satisfy the boundary condition no recombination and no change in charge density at $t=0$. This was run at $1 ns$ time steps to ensure a balance of speed and accuracy (time-steps too high results in values throwing errors or bizarre equilibriums) and the results of the equilibrium simulations are found in Figures \ref{res:Mic:G1} and \ref{res:Mic:G2}.\\
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=0.6]{Figures/035mm80n18_eqm_Graph1}
@@ -430,38 +446,34 @@ The simulation was run for a device of Volume $= 1\cdot 10^{-11} cm^3 $ and cons
 	\includegraphics[scale=0.6]{Figures/035mm80n18_eqm_Graph2.png}
 	\caption{Equilibrium Data plot of net charge densities and Internal Electric Field for a simulated pn device.\label{res:Mic:G2}}
 \end{figure}
+Once the device had been brought to equilibrium, the devices were tested under similar conditions to theoretical ones used in \textit{Brailovsky \& Mitin} paper to see if any indication of the large back-currents expected by their model appearing in the data. The device was loaded from equilibrium between every result. The results can be seen in figure \ref{res:Mic:G3}.\\
 \begin{figure}[H]
 	\centering
-	\includegraphics[scale=0.4]{Figures/FINAL_JSIM_100mA_1e-6_1e-9_Graph.png}
-	\caption{Total current density between all nodes in the device for Instant switch on of 0.1 Amps Direct Current for $1\mu s$.\label{res:Mic:G2}}
+	\includegraphics[scale=0.5]{Figures/FINAL_JSIM}
+	\caption{Log-log plot of total current density between all nodes in the device for Instant switch on of a variety of currents for $1\mu s$.\label{res:Mic:G3}}
+\end{figure}
+Finally, using the same simulation time constants as the Macroscopic model of the device of simulation time step of $10^{-12}s$, a transition time step of $10^{-10}s$ and a maximum transition time of $5\cdot 10^{-9}$, the behaviour of the number of photons as a function of the pulse width's FWHM was found, and shown in figure \ref{res:Mic:G4}.\\
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.5]{Figures/Device_Rad}
+	\caption{Log-log plot of Number of photons in a pulse as a function of FWHM for both the Simulated and Experimental device.\label{res:Mic:G4}}
+\end{figure}
+By taking natural logarithms each of the data-point's photon count and FWHM values, and finding the gradient between two adjacent data-points, it was possible to find a rudimentary evolution of how the time dependency exponent evolved with time, which can be seen in figure \ref{res:Mic:G5}.
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.3]{Figures/Micro_TimeDepExponent}
+	\caption{A plot time dependency exponent as a function of the transition time of the simulation.\label{res:Mic:G5}}
 \end{figure}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+A typical photon pulse from this simulation would have a Gaussian-like distribution and an example of a single photon pulse's data can be seen in Figure \ref{res:Mic:G6} where the simulation was run for a transition time of $1 ns$ at a simulation time-step of $1ps$.
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.3]{Figures/Micro_PhotonPulse}
+	\caption{A plot of the photons emitted from the simulated device as a function of time for a simulation time-step of $1ps$.\label{res:Mic:G6}}
+\end{figure}
 
 \section{Discussion}
-In this section, the results of the modelling compared to real-world results will be discussed. Topics of interest will be: Does the model predict the $N_{\gamma} \propto t^{3} $ results instead of the linear response predicted by Windisch's instantaneous current model ( $N_{\gamma} \propto t^{2} $) or does it manage the closer to experimental result of $t^{4}$?\\
-Discuss the model's simulated capacitance and whether it's similar to that measured experimentally, or predicted by \textbf{Veledar}.\\
-Did the model produce any temperature dependency graphs for photon emission, and if so, how do they again compare to experimental results?
+
 
 \section{Conclusion}
 In this section talk about the limits of the model (only 1D, inaccuracies with reality, etc) and discuss known ways to improve it. Discuss reasons for them not already being implemented (lack of knowledge about device[read: band structure, dimension, composition], more accurate models much more time consuming to build, etc...) \\
@@ -809,5 +821,9 @@ std::ostream &fileOutput, bool bPrintConsole)
 }
 \end{lstlisting}
 Lines 15 to 18 and line 22 only run if the bool in the parameter is set to true, and simply keeps the user up to date in the console.
+
+\subsection{Final Thanks}
+I'd like to give a thank you to all the staff members who gave up their time to discuss semiconductor physics, simulation strategies, and light emitting diodes, as well as sending me in the direction of people in the Physics, Chemistry, and Stephenson's institute departments who might be able to answer my lengthy questions. So thank you to Dr. Jonathan Alaria with the help on semiconductor basics, Dr. Jon Major, Prof. Alison Walker, and Prof. Ken Durose for their explanations on LEDs and directing me in the way of potential software, Prof Alessandro Troisi for his simulation basics overview, and Dr. Hem Sharma, who provided me with a list of potentially useful contacts for me to bother.\\
+Finally, my deepest thanks to Dr. Joachim Rose my supervisor to whom acted as a guiding light and most importantly a sanity check for much of my work, as well providing me with many valuable resources and keeping in contact with regular, long meetings, during which many ideas were discussed, scrapped, and considered during my Project.
 
 \end{document}
