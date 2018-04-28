@@ -366,6 +366,7 @@ void Device_1D::simulateDevice(double & outFWHM, double & outRrad, double t_step
 	double J = 0;			//J
 	double RadMax = 0;
 	//Main function loop
+	int i = 0;				//Timeout counter
 	do
 	{
 		t_now += t_step;
@@ -389,9 +390,10 @@ void Device_1D::simulateDevice(double & outFWHM, double & outRrad, double t_step
 			RadMax = Rrad_now;
 		}
 
-		Rrad_Vec.emplace_back(Rrad_now);
-		Rrad_cum += Rrad_now;
-	} while (Rrad_now>=0 && Rrad_now > 0.4*RadMax);
+		Rrad_Vec.emplace_back(Rrad_now*QE);
+		Rrad_cum += Rrad_now*QE;
+		i++;
+	} while (Rrad_now>=0 && Rrad_now > 0.01*RadMax && i < LOOP_CAP);
 
 	outFWHM = calculateFWHM(Rrad_Vec, t_Vec);
 	outRrad = Rrad_cum;
@@ -436,7 +438,7 @@ void Device_1D::simulateDevice(double t_trans, double t_step, std::string radOut
 			RadMax = Rrad;
 		}
 
-		radOutFile << t_now << "," << inV << "," << Rrad << std::endl;
+		radOutFile << t_now << "," << inV << "," << Rrad*QE << std::endl;
 
 		//Print device state to debug
 		for (auto a : nAry)
@@ -449,7 +451,7 @@ void Device_1D::simulateDevice(double t_trans, double t_step, std::string radOut
 		}
 		debugFile << std::endl;
 		i++;
-	} while (Rrad >= 0 && Rrad > 0.4*RadMax);	//Keeps looping whilst rad is still > 0.3 of maximum rad count
+	} while (Rrad >= 0 && Rrad > 0.01*RadMax && i < LOOP_CAP);	//Keeps looping whilst rad is still > 0.3 of maximum rad count
 
 	//Make sure to close file after doing calculations
 	radOutFile.close();
